@@ -1,3 +1,4 @@
+from src.evaluation import evaluate_goal
 from src.move import Move
 from src.piece import PieceColor
 from src.result import ResultType
@@ -15,24 +16,7 @@ class Chess(Game):
         return state.move(move.fromCell, move.toCell)
     
     def utility(self, state: State, player: PieceColor):
-        
-        if state.result.type in [
-            ResultType.STALEMATE,
-            ResultType.INSUFFICIENT_MATERIAL,
-            ResultType.FIFTY_MOVES,
-            ResultType.SEVENTYFIVE_MOVES,
-            ResultType.THREEFOLD_REPETITION,
-            ResultType.FIVEFOLD_REPETITION
-        ]:
-            return 0
-        
-        if state.result.type == ResultType.CHECKMATE:
-            if state.result.winner == player:
-                return 1
-            else:
-                return -1
-            
-        raise Exception(f"Invalid leaf node state: {state}")
+        return evaluate_goal(state, player)
     
     def terminal_test(self, state: State):
         return state.result.type != ResultType.NONE
