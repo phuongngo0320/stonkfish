@@ -22,24 +22,13 @@ class State:
             for _ in range(State.BOARD_SIZE)
         ]
         
-        # turn
         self.to_move = PieceColor.WHITE
-        
-        # castling rights
         self.castling_rights = (None, None, None, None) # KQkq
-        
-        # en passant
         self.en_passant_target = None
-        
-        # halfmove
         self.halfmove_clock = 0
-        
-        # fullmove
         self.fullmove_number = 1
-        
-        # hash piece location
         self.piecemap = dict()
-        
+        self.move_stack = [] 
         self.parseFEN(fen)
         
     def out_of_board(self, row, col):
@@ -50,29 +39,58 @@ class State:
     def at(self, row, col) -> Piece:
         
         if self.out_of_board(row, col):
-            return None
+            # return None
+            raise Exception(f"Out of board")
         
         return self.board[row][col]
     
-    def move(self, fromCell, toCell):
+    def setPiece(self, row, col, piece: Piece):
+        
+        if self.out_of_board(row, col):
+            raise Exception(f"Out of board")
+        
+        self.board[row][col] = piece
+    
+    def move(self, move: Move):
+        
+        fromCell = move.fromCell
+        toCell = move.toCell
         
         if not self.at(*fromCell) or not self.at(*toCell):
             raise Exception(f"Invalid move: {fromCell} -> {toCell}")
         
         state = deepcopy(self)
+    
+        piece = state.at(*fromCell)
+        state.setPiece(*fromCell, State.EMPTY_CELL)
+        state.setPiece(*toCell, piece)
+        state.move_stack.append(move)
         
-        r1, c1 = fromCell
-        r2, c2 = toCell
+        self.to_move = PieceColor(1 - self.to_move.value)
         
-        piece = state.board[r1][c1]
-        state.board[r1][c1] = State.EMPTY_CELL
-        state.board[r2][c2] = piece
-        
-        # TODO: state switch
-        
+        # ...
         return state
         
     def possible_moves(self) -> list[Move]:
+        pass
+    
+    # -----------------------------------------------
+    # check cell
+    def is_empty_cell(self, cell: tuple):
+        pass
+    
+    # -----------------------------------------------
+    # check move
+    def is_capture(self, move: Move):
+        pass
+    
+    def is_check(self, move: Move):
+        pass
+    
+    def is_castling(self, move: Move):
+        pass
+    
+    def is_en_passant(self, move: Move):
         pass
     
     # -----------------------------------------------
