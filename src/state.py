@@ -139,24 +139,31 @@ class State:
     def possible_moves(self) -> list[Move]:
         pass
     
-    def piece_move(self, piece, loca):
+    def piece_move(self, piece:Piece, loca):
         moves = []
         direct = []
-        if piece == 'p': 
-            if loca[0] != 1:
+        if piece == Piece(PieceType.PAWN, PieceColor.WHITE): 
+            direct = [(1,0), (1,-1), (1,1)]
+            if loca[0] != 6:
                 
-        elif piece == 'P'
-        elif piece == 'r' or piece == 'R':
+                
+
+
+
+                
+        elif piece.type == 'P'
+
+        elif piece.type == 'r' or piece.type == 'R':
             direct = [(0, 1), (1, 0), (0, -1), (-1, 0)]
             moves = self.gen_pos(loca,direct,False)
-        elif piece == 'b' or piece == 'B':
+        elif piece.type == 'b' or piece.type == 'B':
             direct =  [(1, 1), (1, -1), (-1, 1), (-1, -1)]
             moves = self.gen_pos(loca,direct,False)
-        elif piece == 'q' or piece == 'Q':
+        elif piece.type == 'q' or piece.type == 'Q':
             direct = [(0, 1), (1, 0), (0, -1), (-1, 0), 
                         (1, 1), (1, -1), (-1, 1), (-1, -1)]
             moves = self.gen_pos(loca,direct,False)
-        elif piece == 'k' or piece == 'K':
+        elif piece.type == 'k' or piece.type == 'K':
             direct = [(0, 1), (1, 0), (0, -1), (-1, 0), 
                         (1, 1), (1, -1), (-1, 1), (-1, -1)]
             moves = self.gen_pos(loca,direct,True)
@@ -170,30 +177,17 @@ class State:
                 for i in range(1,8):
                     new_row = loca[0] + d[0] * i
                     new_col = loca[1] + d[1] * i
-                    if self.out_of_board(new_row,new_col): break
-                    elif self.is_blocked((new_row,new_col)): break
+                    if self.out_of_board(new_row,new_col): continue
+                    elif self.at(new_row,new_col) is not None: continue
                     moves.append((new_row,new_col))
         else:
             for d in direct:
                 new_row = loca[0] + d[0] 
                 new_col = loca[1] + d[1] 
                 if self.out_of_board(new_row,new_col): break
-                elif self.is_blocked((new_row,new_col)): break
+                elif self.at(new_row,new_col) is not None: break
                 moves.append((new_row,new_col))
         return moves
-
-                
-    def is_blocked(self, new_pos) -> bool:
-        for piece in self.piecemap:
-            for pos in piece:
-                if pos[0] == new_pos[0] and pos[1] == new_pos[1]: return True
-        return False
-
-
-        
-
-
-
 
 
     # -----------------------------------------------
