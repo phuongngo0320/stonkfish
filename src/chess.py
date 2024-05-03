@@ -1,11 +1,11 @@
 from src.move import Move
-from src.player import Side
+from src.piece import PieceColor
 from src.state import State
 from src.game import Game
 
 class Chess(Game):
-    MAXPL = Side.WHITE
-    MINPL = Side.BLACK
+    MAXPL = PieceColor.WHITE
+    MINPL = PieceColor.BLACK
 
     def actions(self, state: State):
         return state.possible_moves()

@@ -1,7 +1,7 @@
 from copy import deepcopy
 from src.fen import parseBoard, parseCell, parsePiece
 from src.move import Move
-from src.piece import Piece, PieceColor
+from src.piece import Piece, PieceColor, PieceType, opponent
 from src.result import Result, ResultType
 
 class State:
@@ -27,7 +27,10 @@ class State:
         self.en_passant_target = None
         self.halfmove_clock = 0
         self.fullmove_number = 1
-        self.piecemap = dict()
+        self.piecemap = dict([
+            (p, [])
+            for p in ['p', 'n', 'b', 'r', 'q', 'k', 'P', 'N', 'B', 'R', 'Q', 'K']
+        ])
         self.move_stack = [] 
         self.parseFEN(fen)
         
@@ -35,6 +38,9 @@ class State:
         if 0 <= row < State.BOARD_SIZE and 0 <= col < State.BOARD_SIZE:
             return False
         return True
+        
+    def get_piece_locations(self, piece: Piece):
+        return self.piecemap[piece.getFEN()]
     
     def at(self, row, col) -> Piece:
         
@@ -44,11 +50,12 @@ class State:
         
         return self.board[row][col]
     
-    def setPiece(self, row, col, piece: Piece):
+    def set_piece(self, row, col, piece: Piece):
         
         if self.out_of_board(row, col):
             raise Exception(f"Out of board")
         
+        old_piece = self.at(row, col)
         self.board[row][col] = piece
     
     def move(self, move: Move):
@@ -61,15 +68,55 @@ class State:
         
         state = deepcopy(self)
     
-        piece = state.at(*fromCell)
-        state.setPiece(*fromCell, State.EMPTY_CELL)
-        state.setPiece(*toCell, piece)
+        piece = self.at(*fromCell)
+        state.set_piece(*fromCell, State.EMPTY_CELL)
+        state.set_piece(*toCell, piece)
         state.move_stack.append(move)
         
-        self.to_move = PieceColor(1 - self.to_move.value)
+        state.to_move = PieceColor(1 - self.to_move.value)
         
-        # ...
+        if self.is_kingside_castling(move):
+            if self.to_move == PieceColor.WHITE:
+                state.castling_rights[0] = False
+            else:
+                state.castling_rights[2] = False
+        elif self.is_queenside_castling(move):
+            if self.to_move == PieceColor.WHITE:
+                state.castling_rights[1] = False
+            else:
+                state.castling_rights[3] = False
+                
+        if self.en_passant_target:
+            if self.is_en_passant(move):
+                state.en_passant_target = None
+        else:
+            if self.is_pawn_double_move(move):
+                pawn_cell = move.toCell
+                
+                left = (pawn_cell[0], pawn_cell[1] - 1)
+                right = (pawn_cell[0], pawn_cell[1] + 1)
+                
+                if not self.out_of_board(*left):
+                    if self.at(*left) == Piece(PieceType.PAWN, opponent(self.to_move)):
+                        if self.to_move == PieceColor.WHITE:
+                            self.en_passant_target = (left[0] - 1, left[1])
+                        else:
+                            self.en_passant_target = (left[0] + 1, left[1])
+                
+                if not self.out_of_board(*right):
+                    if self.at(*right) == Piece(PieceType.PAWN, opponent(self.to_move)):
+                        if self.to_move == PieceColor.WHITE:
+                            self.en_passant_target = (right[0] - 1, right[1])
+                        else:
+                            self.en_passant_target = (right[0] + 1, right[1])
+                
+        if self.is_half_move(move):
+            self.halfmove_clock += 1
+        self.fullmove_number += 1
+    
         return state
+    # -----------------------------------------------
+    # piece rule
         
     def possible_moves(self) -> list[Move]:
         pass
@@ -90,7 +137,19 @@ class State:
     def is_castling(self, move: Move):
         pass
     
+    def is_kingside_castling(self, move: Move):
+        pass
+    
+    def is_queenside_castling(self, move: Move):
+        pass
+    
     def is_en_passant(self, move: Move):
+        pass
+    
+    def is_pawn_double_move(self, move: Move):
+        pass
+    
+    def is_half_move(self, move: Move):
         pass
     
     # -----------------------------------------------
@@ -133,10 +192,7 @@ class State:
                 self.board[row][col] = parsePiece(fen_piece)
                 
                 if fen_piece != ".":
-                    if fen_piece in self.piecemap:
-                        self.piecemap[fen_piece] += [(row, col)]
-                    else:
-                        self.piecemap[fen_piece] = [(row, col)]
+                    self.piecemap[fen_piece] += [(row, col)]
                 
         self.to_move = PieceColor.WHITE if fen_turn == "w" else PieceColor.BLACK
         

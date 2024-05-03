@@ -13,7 +13,10 @@ class PieceColor(Enum):
     WHITE = 0
     BLACK = 1
     
-PIECE_NAMES = ['empty', 'pawn', 'knight', 'bishop', 'rook', 'queen', 'king']
+def opponent_piece_color(color: PieceColor):
+    return PieceColor(1 - color.value)
+
+PIECE_NAMES = [None, 'pawn', 'knight', 'bishop', 'rook', 'queen', 'king']
 
 class Piece:
     
@@ -43,8 +46,7 @@ class Piece:
     
     def getName(self) -> str:
         return (
-            "black " if self.color == PieceColor.BLACK else "white " +
-            PIECE_NAMES[self.type]
+            "black " if self.color == PieceColor.BLACK else "white " + PIECE_NAMES[self.type.value]
         )
         
     def __repr__(self) -> str:
