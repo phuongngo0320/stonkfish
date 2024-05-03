@@ -1,5 +1,10 @@
+from enum import Enum
 import random
 from src.game import Game
+
+class Side(Enum):
+    WHITE = True
+    BLACK = False
 
 def random_player(game: Game, state):
     actions = game.actions(state)
