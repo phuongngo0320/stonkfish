@@ -77,12 +77,19 @@ class State:
             raise Exception(f"Invalid move: {fromCell} -> {toCell}")
         
         state = deepcopy(self)
-    
-        piece = self.at(fromCell)
-        state.set_piece(fromCell, State.EMPTY_CELL)
-        state.set_piece(toCell, piece)
-        state.move_stack.append(move)
         
+        # promo move
+        if move.promotion != State.EMPTY_CELL:
+            if fromCell != toCell:
+                raise Exception(f"Invalid promotion: {move}")
+            state.set_piece(fromCell, move.promotion)
+        
+        else:
+            piece = self.at(fromCell)
+            state.set_piece(fromCell, State.EMPTY_CELL)
+            state.set_piece(toCell, piece)
+            
+        state.move_stack.append(move)
         state.to_move = opponent(self.to_move)
         
         if self.is_kingside_castling(move):
