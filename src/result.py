@@ -29,10 +29,5 @@ RESULT_TYPE_NAMES = [
 class Result:
     
     def __init__(self, type, winner=None) -> None:
-        if type not in range(len(RESULT_TYPE_NAMES)):
-            raise Exception(f"Invalid result type: {type}")
-        if winner not in [Side.BLACK, Side.WHITE]:
-            raise Exception(f"Invalid side: {winner}")
-        
         self.type = type
         self.winner = winner
