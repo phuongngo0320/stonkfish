@@ -13,7 +13,7 @@ class PieceColor(Enum):
     WHITE = 0
     BLACK = 1
     
-def opponent_piece_color(color: PieceColor):
+def opponent(color: PieceColor):
     return PieceColor(1 - color.value)
 
 PIECE_NAMES = [None, 'pawn', 'knight', 'bishop', 'rook', 'queen', 'king']

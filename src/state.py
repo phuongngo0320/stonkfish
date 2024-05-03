@@ -1,4 +1,5 @@
 from copy import deepcopy
+from src.cell import Cell
 from src.fen import parseBoard, parseCell, parsePiece
 from src.move import Move
 from src.piece import Piece, PieceColor, PieceType, opponent
@@ -34,46 +35,52 @@ class State:
         self.move_stack = [] 
         self.parseFEN(fen)
         
-    def out_of_board(self, row, col):
-        if 0 <= row < State.BOARD_SIZE and 0 <= col < State.BOARD_SIZE:
+    def out_of_board(self, cell: Cell):
+        if 0 <= cell.row < State.BOARD_SIZE and 0 <= cell.col < State.BOARD_SIZE:
             return False
         return True
         
-    def get_piece_locations(self, piece: Piece):
+    def get_piece_locations(self, piece: Piece) -> list[Cell]:
         return self.piecemap[piece.getFEN()]
     
-    def at(self, row, col) -> Piece:
+    def at(self, cell: Cell) -> Piece:
         
-        if self.out_of_board(row, col):
+        if self.out_of_board(cell):
             # return None
             raise Exception(f"Out of board")
         
-        return self.board[row][col]
+        return self.board[cell.row][cell.col]
     
-    def set_piece(self, row, col, piece: Piece):
+    def set_piece(self, cell: Cell, new_piece: Piece):
         
-        if self.out_of_board(row, col):
+        if self.out_of_board(cell):
             raise Exception(f"Out of board")
         
-        old_piece = self.at(row, col)
-        self.board[row][col] = piece
+        old_piece = self.at(cell)
+        if old_piece != State.EMPTY_CELL:
+            self.piecemap[old_piece].remove(cell)
+        
+        self.board[cell.row][cell.col] = new_piece
+        
+        if new_piece != State.EMPTY_CELL:
+            self.piecemap[new_piece.getFEN()].append(cell)
     
     def move(self, move: Move):
         
         fromCell = move.fromCell
         toCell = move.toCell
         
-        if not self.at(*fromCell) or not self.at(*toCell):
+        if not self.at(fromCell) or not self.at(toCell):
             raise Exception(f"Invalid move: {fromCell} -> {toCell}")
         
         state = deepcopy(self)
     
-        piece = self.at(*fromCell)
-        state.set_piece(*fromCell, State.EMPTY_CELL)
-        state.set_piece(*toCell, piece)
+        piece = self.at(fromCell)
+        state.set_piece(fromCell, State.EMPTY_CELL)
+        state.set_piece(toCell, piece)
         state.move_stack.append(move)
         
-        state.to_move = PieceColor(1 - self.to_move.value)
+        state.to_move = opponent(self.to_move)
         
         if self.is_kingside_castling(move):
             if self.to_move == PieceColor.WHITE:
@@ -93,22 +100,22 @@ class State:
             if self.is_pawn_double_move(move):
                 pawn_cell = move.toCell
                 
-                left = (pawn_cell[0], pawn_cell[1] - 1)
-                right = (pawn_cell[0], pawn_cell[1] + 1)
+                left = pawn_cell.toLeft()
+                right = pawn_cell.toRight()
                 
-                if not self.out_of_board(*left):
-                    if self.at(*left) == Piece(PieceType.PAWN, opponent(self.to_move)):
+                if not self.out_of_board(left):
+                    if self.at(left) == Piece(PieceType.PAWN, opponent(self.to_move)):
                         if self.to_move == PieceColor.WHITE:
-                            self.en_passant_target = (left[0] - 1, left[1])
+                            self.en_passant_target = left.toUp()
                         else:
-                            self.en_passant_target = (left[0] + 1, left[1])
+                            self.en_passant_target = left.toDown()
                 
-                if not self.out_of_board(*right):
-                    if self.at(*right) == Piece(PieceType.PAWN, opponent(self.to_move)):
+                if not self.out_of_board(right):
+                    if self.at(right) == Piece(PieceType.PAWN, opponent(self.to_move)):
                         if self.to_move == PieceColor.WHITE:
-                            self.en_passant_target = (right[0] - 1, right[1])
+                            self.en_passant_target = right.toUp()
                         else:
-                            self.en_passant_target = (right[0] + 1, right[1])
+                            self.en_passant_target = right.toDown()
                 
         if self.is_half_move(move):
             self.halfmove_clock += 1
@@ -123,8 +130,8 @@ class State:
     
     # -----------------------------------------------
     # check cell
-    def is_empty_cell(self, cell: tuple):
-        pass
+    def is_empty_cell(self, cell: Cell):
+        return self.at(cell) == State.EMPTY_CELL
     
     # -----------------------------------------------
     # check move
@@ -192,7 +199,7 @@ class State:
                 self.board[row][col] = parsePiece(fen_piece)
                 
                 if fen_piece != ".":
-                    self.piecemap[fen_piece] += [(row, col)]
+                    self.piecemap[fen_piece].append(Cell(row, col))
                 
         self.to_move = PieceColor.WHITE if fen_turn == "w" else PieceColor.BLACK
         
@@ -208,7 +215,6 @@ class State:
         else:
             self.en_passant_target = parseCell(fen_en_passant)
         
-        
         self.halfmove_clock = int(fen_halfmove)
         self.fullmove_number = int(fen_fullmove)
     
@@ -219,7 +225,7 @@ class State:
         
         board = "\n".join([
             " ".join([str(8 - row)] + [
-                self.at(row, col).getFEN()
+                self.at(Cell(row, col)).getFEN()
                 for col in range(State.BOARD_SIZE)
             ])
             for row in range(State.BOARD_SIZE)

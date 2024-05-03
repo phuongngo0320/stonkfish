@@ -1,3 +1,4 @@
+from src.cell import Cell
 from src.piece import Piece, PieceColor, PieceType
 
 def parseBoard(fen: str): # not parsing
@@ -36,12 +37,5 @@ def parseCell(fen: str):
     row = 9 - int(fen[0])
     col = ord(fen[1]) - ord("a")
     
-    return (row, col)
-
-def fromCell(cell: tuple):
-    
-    row, col = cell    
-    fen1 = str(9 - row)
-    fen2 = chr(ord("a") + col)
-    return fen1 + fen2
+    return Cell(row, col)
 
