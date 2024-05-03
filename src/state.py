@@ -43,6 +43,9 @@ class State:
     def get_piece_locations(self, piece: Piece) -> list[Cell]:
         return self.piecemap[piece.getFEN()]
     
+    def count_pieces(self, piece: Piece):
+        return len(self.piecemap[piece.getFEN()])
+    
     def at(self, cell: Cell) -> Piece:
         
         if self.out_of_board(cell):
@@ -119,7 +122,8 @@ class State:
                 
         if self.is_half_move(move):
             self.halfmove_clock += 1
-        self.fullmove_number += 1
+        if self.to_move == PieceColor.BLACK:
+            self.fullmove_number += 1
     
         return state
     # -----------------------------------------------
