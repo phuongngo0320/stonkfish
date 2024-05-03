@@ -16,6 +16,18 @@ class Cell:
     def toDown(self, distance: int = 1):
         return Cell(self.row + distance, self.col)
     
+    def toDownLeft(self, distance: int = 1):
+        return self.toDown(distance).toLeft(distance)
+    
+    def toDownRight(self, distance: int = 1):
+        return self.toDown(distance).toRight(distance)
+
+    def toUpLeft(self, distance: int = 1):
+        return self.toUp(distance).toLeft(distance)
+    
+    def toUpRight(self, distance: int = 1):
+        return self.toUp(distance).toRight(distance)
+
     def getFEN(self):
         fen1 = str(9 - self.row)
         fen2 = chr(ord("a") + self.col)

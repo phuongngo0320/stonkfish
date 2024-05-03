@@ -135,60 +135,101 @@ class State:
         return state
     # -----------------------------------------------
     # piece rule
+    def is_typ(self, piece: str):
+        if piece.islower(): return PieceColor.BLACK
+        return PieceColor.WHITE
         
     def possible_moves(self) -> list[Move]:
         pass
     
-    def piece_move(self, piece:Piece, loca):
+    def to_direction (self, curr_cell:Cell, direc, distance):
+        if direc == 'toUp':
+            return curr_cell.toUp(distance)
+        elif direc == 'toDown':
+            return curr_cell.toDown(distance)
+        elif direc == 'toLeft':
+            return curr_cell.toLeft(distance)
+        elif direc == 'toRight':
+            return curr_cell.toRight(distance)
+        elif direc == 'toUpRight':
+            return curr_cell.toUpRight(distance)
+        elif direc == 'toUpLeft':
+            return curr_cell.toUpLeft(distance)
+        elif direc == 'toDownRight':
+            return curr_cell.toDownRight(distance)
+        elif direc == 'toDownLeft':
+            return curr_cell.toDownLeft(distance)
+    
+    def possible_piece_moves(self, piece:Piece, curr_cell:Cell):
         moves = []
-        direct = []
-        if piece == Piece(PieceType.PAWN, PieceColor.WHITE): 
-            direct = [(1,0), (1,-1), (1,1)]
-            if loca[0] != 6:
-                
-                
+        # WHITE PAWN
+        if piece == Piece(PieceType.PAWN, PieceColor.WHITE):
+            moves.append(curr_cell.toUp())
+            if curr_cell.row == 6:
+                moves.append(curr_cell.toUp(2))
+            next_cell_capture = [curr_cell.toUpLeft(1), curr_cell.toUpRight(1)]
+            for next_cell in next_cell_capture:
+                if self.is_empty_cell(next_cell) is False or self.is_en_passant(Move(curr_cell, next_cell)):
+                    moves.append(next_cell)
+        # BLACK PAWN
+        elif piece == Piece(PieceType.PAWN, PieceColor.BLACK):
+            moves.append(curr_cell.toDown())
+            if curr_cell.row == 1:
+                moves.append(curr_cell.toDown(2))
+            next_cell_capture = [curr_cell.toDownLeft(1), curr_cell.toDownRight(1)]
+            for next_cell in next_cell_capture:
+                if self.is_empty_cell(next_cell) is False or self.is_en_passant(Move(curr_cell, next_cell)):
+                    moves.append(next_cell)
 
+        elif piece.type == PieceType.KNIGHT: 
+            next_cells = [curr_cell.toUp(2).toRight(1), curr_cell.toUp(2).toLeft(1),
+                         curr_cell.toUp(1).toRight(2), curr_cell.toUp(1).toLeft(2),
+                         curr_cell.toDown(2).toRight(1), curr_cell.toDown(2).toLeft(1),
+                         curr_cell.toDown(1).toRight(2), curr_cell.toDown(1).toLeft(2)]
+            for next_cell in next_cells:
+                if self.is_empty_cell(next_cell) is False: break
+                if self.out_of_board(next_cell) is True: break
+                moves.append(next_cell)
 
+        elif piece.type == PieceType.BISHOP:
+            directions = ['toUpRight', 'toUpLeft', 'toDownRight', 'toDownLeft']
+            for direct in directions:
+                for i in range(1,8):
+                    next_cell = self.to_direction(curr_cell, direct, i)
+                    if self.is_empty_cell(next_cell) is False: break
+                    if self.out_of_board(next_cell) is True: break
+                    moves.append(next_cell)
 
-                
-        elif piece.type == 'P'
+        elif piece.type == PieceType.ROOK:
+            directions = ['toUp', 'toDown', 'toLeft', 'toRight']
+            for direct in directions:
+                for i in range(1,8):
+                    next_cell = self.to_direction(curr_cell, direct, i)
+                    if self.is_empty_cell(next_cell) is False: break
+                    if self.out_of_board(next_cell) is True: break
+                    moves.append(next_cell)
+                    
+        elif piece.type == PieceType.QUEEN:
+            directions = ['toUp', 'toDown', 'toLeft', 'toRight',
+                          'toUpRight', 'toUpLeft', 'toDownRight', 'toDownLeft']
+            for direct in directions:
+                for i in range(1,8):
+                    next_cell = self.to_direction(curr_cell, direct, i)
+                    if self.is_empty_cell(next_cell) is False: break
+                    if self.out_of_board(next_cell) is True: break
+                    moves.append(next_cell)
 
-        elif piece.type == 'r' or piece.type == 'R':
-            direct = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-            moves = self.gen_pos(loca,direct,False)
-        elif piece.type == 'b' or piece.type == 'B':
-            direct =  [(1, 1), (1, -1), (-1, 1), (-1, -1)]
-            moves = self.gen_pos(loca,direct,False)
-        elif piece.type == 'q' or piece.type == 'Q':
-            direct = [(0, 1), (1, 0), (0, -1), (-1, 0), 
-                        (1, 1), (1, -1), (-1, 1), (-1, -1)]
-            moves = self.gen_pos(loca,direct,False)
-        elif piece.type == 'k' or piece.type == 'K':
-            direct = [(0, 1), (1, 0), (0, -1), (-1, 0), 
-                        (1, 1), (1, -1), (-1, 1), (-1, -1)]
-            moves = self.gen_pos(loca,direct,True)
+        elif piece.type == PieceType.KING:
+            directions = ['toUp', 'toDown', 'toLeft', 'toRight',
+                          'toUpRight', 'toUpLeft', 'toDownRight', 'toDownLeft']
+            for direct in directions:
+                next_cell = self.to_direction(curr_cell, direct, 1)
+                if self.is_empty_cell(next_cell) is False: break
+                if self.out_of_board(next_cell) is True: break
+                moves.append(next_cell)
 
         return moves
         
-    def gen_pos(self, loca, direct, isKing):
-        moves = []
-        if not isKing:
-            for d in direct:
-                for i in range(1,8):
-                    new_row = loca[0] + d[0] * i
-                    new_col = loca[1] + d[1] * i
-                    if self.out_of_board(new_row,new_col): continue
-                    elif self.at(new_row,new_col) is not None: continue
-                    moves.append((new_row,new_col))
-        else:
-            for d in direct:
-                new_row = loca[0] + d[0] 
-                new_col = loca[1] + d[1] 
-                if self.out_of_board(new_row,new_col): break
-                elif self.at(new_row,new_col) is not None: break
-                moves.append((new_row,new_col))
-        return moves
-
 
     # -----------------------------------------------
     # check cell
@@ -201,10 +242,9 @@ class State:
         pass
     
     def is_check(self, move: Move):
-        if self.to_move == PieceColor.WHITE:
-            for piece_poss in self.piecemap:
-                for pos in 
-                    
+        typ = self.at(move.fromCell)
+        next_move = self.possible_piece_moves(typ, move.toCell)
+
     
     def is_castling(self, move: Move):
         pass
