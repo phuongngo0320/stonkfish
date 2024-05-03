@@ -139,6 +139,63 @@ class State:
     def possible_moves(self) -> list[Move]:
         pass
     
+    def piece_move(self, piece, loca):
+        moves = []
+        direct = []
+        if piece == 'p': 
+            if loca[0] != 1:
+                
+        elif piece == 'P'
+        elif piece == 'r' or piece == 'R':
+            direct = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+            moves = self.gen_pos(loca,direct,False)
+        elif piece == 'b' or piece == 'B':
+            direct =  [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+            moves = self.gen_pos(loca,direct,False)
+        elif piece == 'q' or piece == 'Q':
+            direct = [(0, 1), (1, 0), (0, -1), (-1, 0), 
+                        (1, 1), (1, -1), (-1, 1), (-1, -1)]
+            moves = self.gen_pos(loca,direct,False)
+        elif piece == 'k' or piece == 'K':
+            direct = [(0, 1), (1, 0), (0, -1), (-1, 0), 
+                        (1, 1), (1, -1), (-1, 1), (-1, -1)]
+            moves = self.gen_pos(loca,direct,True)
+
+        return moves
+        
+    def gen_pos(self, loca, direct, isKing):
+        moves = []
+        if not isKing:
+            for d in direct:
+                for i in range(1,8):
+                    new_row = loca[0] + d[0] * i
+                    new_col = loca[1] + d[1] * i
+                    if self.out_of_board(new_row,new_col): break
+                    elif self.is_blocked((new_row,new_col)): break
+                    moves.append((new_row,new_col))
+        else:
+            for d in direct:
+                new_row = loca[0] + d[0] 
+                new_col = loca[1] + d[1] 
+                if self.out_of_board(new_row,new_col): break
+                elif self.is_blocked((new_row,new_col)): break
+                moves.append((new_row,new_col))
+        return moves
+
+                
+    def is_blocked(self, new_pos) -> bool:
+        for piece in self.piecemap:
+            for pos in piece:
+                if pos[0] == new_pos[0] and pos[1] == new_pos[1]: return True
+        return False
+
+
+        
+
+
+
+
+
     # -----------------------------------------------
     # check cell
     def is_empty_cell(self, cell: Cell):
@@ -150,7 +207,10 @@ class State:
         pass
     
     def is_check(self, move: Move):
-        pass
+        if self.to_move == PieceColor.WHITE:
+            for piece_poss in self.piecemap:
+                for pos in 
+                    
     
     def is_castling(self, move: Move):
         pass
@@ -173,6 +233,7 @@ class State:
     # -----------------------------------------------
     def is_checkmate(self):
         pass
+                    
     
     def is_stalemate(self):
         pass
