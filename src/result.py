@@ -1,5 +1,4 @@
 from enum import Enum
-from src.player import Side
 
 class ResultType(Enum):
     NONE = 0

@@ -1,5 +1,3 @@
-from enum import Enum
-    
 class Vector:    
     
     def __init__(self, rowax: int, colax: int) -> None:

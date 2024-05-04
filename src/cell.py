@@ -1,4 +1,4 @@
-from src.vector import Direction, Vector
+from src.vector import Vector
 
 class Cell:
     
