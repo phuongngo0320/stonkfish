@@ -40,4 +40,7 @@ class Cell:
     
     def __repr__(self) -> str:
         pass
+    
+    def __eq__(self, value: object) -> bool:
+        return self.row == value.row and self.col == value.col
         

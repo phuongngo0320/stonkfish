@@ -54,3 +54,6 @@ class Piece:
     def __repr__(self) -> str:
         return self.getFEN()
 
+    def __eq__(self, value: object) -> bool:
+        return self.type == value.type and self.color == value.color
+

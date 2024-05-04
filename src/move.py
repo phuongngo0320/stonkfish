@@ -11,5 +11,12 @@ class Move:
     def getFEN(self) -> str:
         pass
     
+    def __eq__(self, value: object) -> bool:
+        return (
+            self.fromCell == value.fromCell and
+            self.toCell == value.toCell and 
+            self.promotion == value.promotion
+        )
+    
     def __str__(self) -> str:
         raise NotImplementedError

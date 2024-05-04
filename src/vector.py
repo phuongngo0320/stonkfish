@@ -4,6 +4,9 @@ class Vector:
         self.rowax = rowax
         self.colax = colax
         
+    def __eq__(self, value: object) -> bool:
+        return self.rowax == value.rowax and self.colax == value.colax
+        
     @staticmethod
     def up(weight = 1):
         return Vector(-weight, 0)

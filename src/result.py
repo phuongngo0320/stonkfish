@@ -30,3 +30,6 @@ class Result:
     def __init__(self, type, winner=None) -> None:
         self.type = type
         self.winner = winner
+        
+    def __eq__(self, value: object) -> bool:
+        return self.type == value.type and self.winner == value.winner
