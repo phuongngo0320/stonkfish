@@ -163,12 +163,21 @@ class State:
         return state
     # -----------------------------------------------
     # piece rule
-    def is_typ(self, piece: str):
-        if piece.islower(): return PieceColor.BLACK
-        return PieceColor.WHITE
+    # def is_typ(self, piece: str):
+    #     if piece.islower():    
+    #         if str == ''
         
     def possible_moves(self) -> list[Move]:
-        pass
+        return self.possible_moves_color(PieceColor.BLACK) + self.possible_moves_color(PieceColor.WHITE) 
+
+    def possible_moves_color(self, color:PieceColor):
+        moves =[]
+        for piece, curr_cell in self.piecemap.items():
+            curr_piece = parsePiece(piece)
+            if curr_piece.color == color:
+                for cell in curr_cell:
+                    moves += self.possible_piece_moves(curr_piece,cell)
+        return moves
     
     def to_direction (self, curr_cell:Cell, direc, distance) -> Cell:
         if direc == 'toUp':
@@ -195,14 +204,15 @@ class State:
         if piece == Piece(PieceType.PAWN, PieceColor.WHITE):
             if self.is_empty_cell(curr_cell.toUp()) is True:
                 moves.append(Move(curr_cell,curr_cell.toUp()))
-            if curr_cell.row == 6 and self.is_empty_cell(curr_cell.toDown(2)) is True:
+            if self.is_pawn_double_move(Move(curr_cell,curr_cell.toUp(2))) is True:
+            # if curr_cell.row == 6 and self.is_empty_cell(curr_cell.toDown(2)) is True:
                 moves.append(Move(curr_cell,curr_cell.toUp(2)))
             next_cell_capture = [curr_cell.toUpLeft(1), curr_cell.toUpRight(1)]
             for next_cell in next_cell_capture:
                 if self.is_empty_cell(next_cell) is False :
                     if self.at(next_cell).color == piece_color: 
                         continue
-                    if self.is_en_passant(Move(curr_cell, next_cell)) is not True: 
+                    if self.is_en_passant(Move(curr_cell, next_cell)) is False: 
                         continue
 
                     moves.append(Move(curr_cell,next_cell))
@@ -210,7 +220,7 @@ class State:
         elif piece == Piece(PieceType.PAWN, PieceColor.BLACK):
             if self.is_empty_cell(curr_cell.toDown()) is True:
                 moves.append(Move(curr_cell,curr_cell.toDown()))
-            if curr_cell.row == 1 and self.is_empty_cell(curr_cell.toDown(2)) is True:
+            if self.is_pawn_double_move(Move(curr_cell,curr_cell.toDown(2))) is True:
                 moves.append(Move(curr_cell,curr_cell.toDown(2)))
             next_cell_capture = [curr_cell.toDownLeft(1), curr_cell.toDownRight(1)]
             for next_cell in next_cell_capture:
@@ -273,6 +283,17 @@ class State:
                     if self.at(next_cell).color == piece_color: break
                 if self.out_of_board(next_cell) is True: break
                 moves.append(Move(curr_cell,next_cell))
+            #Castling
+            if piece.color == PieceColor.WHITE:
+                if self.castling_rights[0] == True:
+                    moves.append(Move(curr_cell,curr_cell.toRight(2)))
+                if self.castling_rights[1] == True:
+                    moves.append(Move(curr_cell,curr_cell.toLeft(2)))
+            else:
+                if self.castling_rights[2] == True:
+                    moves.append(Move(curr_cell,curr_cell.toRight(2)))
+                if self.castling_rights[3] == True:
+                    moves.append(Move(curr_cell,curr_cell.toLeft(2)))
 
         return moves
     
@@ -283,50 +304,101 @@ class State:
     
     # -----------------------------------------------
     # check move
+    def is_capture_king(self, move:Move):
+        if self.is_capture(move) is True:
+            if self.at(move.toCell).type == PieceType.KING: return True
+        return False
+
     def is_capture(self, move: Move):
-        pass
+        if self.is_empty_cell(move.toCell) is True: return False
+
+        to_cell_piece = self.at(move.toCell)
+        if self.to_move != to_cell_piece.color: return True
+        return False
     
     def is_check(self, move: Move) -> bool:
         typ = self.at(move.fromCell)
         next_moves = self.possible_piece_moves(typ, move.toCell)
         for next_move in next_moves:
-            if self.to_move == PieceColor.BLACK:
-                if self.at(next_move.toCell) == Piece(PieceType.KING, PieceColor.WHITE):
-                    return True
-            elif self.to_move == PieceColor.WHITE:
-                if self.at(next_move.toCell) == Piece(PieceType.KING, PieceColor.BLACK):
-                    return True
+            if self.is_capture_king(next_move) is True: return True
         return False
      
     def is_castling(self, move: Move):
         pass
     
+    def check_castling_color(self, move:Move, color:PieceColor, is_kingside: True):
+        if self.at(move.fromCell).type == PieceType.KING:
+            if color == PieceColor.WHITE:
+                if is_kingside is True:
+                    if self.castling_rights[0] is True:
+                        if move.fromCell.toRight(2) == move.toCell: return True
+                    return False
+                else:
+                    if self.castling_rights[1] is True:
+                        if move.fromCell.toLeft(2) == move.toCell: return True
+                    return False
+            if color == PieceColor.BLACK:
+                if is_kingside is True:
+                    if self.castling_rights[2] is True:
+                        if move.fromCell.toRight(2) == move.toCell: return True
+                    return False
+                else:
+                    if self.castling_rights[3] is True:
+                        if move.fromCell.toLeft(2) == move.toCell: return True
+                    return False
+        return False
+    
     def is_kingside_castling(self, move: Move):
-        pass
+        return self.check_castling_color(move,self.at(move.fromCell).color,True)
     
     def is_queenside_castling(self, move: Move):
-        pass
+        return self.check_castling_color(move,self.at(move.fromCell).color,False)
     
     def is_en_passant(self, move: Move):
-        pass
+        last_move = self.move_stack[-1]
+        if self.at(move.fromCell).type != PieceType.PAWN: return False
+        if self.is_pawn_double_move(last_move) is True and self.at(last_move.toCell).color != self.to_move:
+            if move.fromCell == last_move.toCell.toRight(1) or move.fromCell == last_move.toCell.toLeft(1):
+                if move.toCell == last_move.toCell.toUp() or move.toCell == last_move.toCell.toDown(): 
+                    if self.is_empty_cell(move.toCell): return True
+                
+        return False
+
     
     def is_pawn_double_move(self, move: Move):
-        pass
+        curr_piece = self.at(move.fromCell)
+        if curr_piece.type != PieceType.PAWN: return False
+        else:
+            if curr_piece.color == PieceColor.BLACK:
+                if move.fromCell.toDown(2) != move.fromCell: return False
+                else:
+                    if self.is_empty_cell(move.toCell) is False: return False
+
+            else:
+                if move.fromCell.toUp(2) != move.fromCell: return False
+                else:
+                    if self.is_empty_cell(move.toCell) is False: return False
+        
+        return True
+
     
     def is_half_move(self, move: Move):
-        pass
+        return False
     
     # -----------------------------------------------
     def is_checkmate(self):
-        # if self.to_move == PieceColor.BLACK: 
-        #     enemy_color = PieceColor.WHITE
-        # else:
-        #     enemy_color = PieceColor.BLACK
-        
-        # for piece, curr_cells in self.piecemap:
-        #     if self.is_typ(piece) == self.
-        
-        pass
+
+        enemy_color = opponent(self.to_move)
+
+        own_moves = self.possible_moves_color(self.to_move)
+        for move in own_moves:
+            check_state = self.move(move)
+            enemy_moves = check_state.possible_moves_color(enemy_color)
+            for enemy_move in enemy_moves:
+                if check_state.is_capture_king(enemy_move): return True
+        return False
+
+    
     def is_stalemate(self):
         pass
     
