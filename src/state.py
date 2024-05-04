@@ -209,6 +209,7 @@ class State:
                 moves.append(Move(curr_cell,curr_cell.toUp(2)))
             next_cell_capture = [curr_cell.toUpLeft(1), curr_cell.toUpRight(1)]
             for next_cell in next_cell_capture:
+                if self.out_of_board(next_cell) is True: continue
                 if self.is_empty_cell(next_cell) is False :
                     if self.at(next_cell).color == piece_color: 
                         continue
@@ -224,6 +225,7 @@ class State:
                 moves.append(Move(curr_cell,curr_cell.toDown(2)))
             next_cell_capture = [curr_cell.toDownLeft(1), curr_cell.toDownRight(1)]
             for next_cell in next_cell_capture:
+                if self.out_of_board(next_cell) is True: continue
                 if self.is_empty_cell(next_cell) is False :
                     if self.at(next_cell).color == piece_color: 
                         continue
