@@ -34,7 +34,7 @@ def parsePiece(fen: str):
 
 def parseCell(fen: str):
     
-    row = 9 - int(fen[1])
+    row = 8 - int(fen[1])
     col = ord(fen[0]) - ord("a")
     
     return Cell(row, col)
