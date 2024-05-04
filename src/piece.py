@@ -16,7 +16,7 @@ class PieceColor(Enum):
 def opponent(color: PieceColor):
     return PieceColor(1 - color.value)
 
-PIECE_TYPES = [ PieceType(i) for i in range(len(PieceType)) ]
+PIECE_TYPES = [ PieceType(i) for i in range(1, len(PieceType)) ]
 PIECE_COLORS = [ PieceColor(i) for i in range(len(PieceColor)) ]
 PIECE_NAMES = [None, 'pawn', 'knight', 'bishop', 'rook', 'queen', 'king']
 

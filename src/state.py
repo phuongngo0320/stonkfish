@@ -89,6 +89,31 @@ class State:
             state.set_piece(fromCell, State.EMPTY_CELL)
             state.set_piece(toCell, piece)
             
+            # add rook move for castling
+            if self.is_kingside_castling(move):
+                
+                rookCell = None
+                if self.to_move == PieceColor.WHITE:
+                    rookCell = parseCell("1h")
+                else:
+                    rookCell = parseCell("8h")
+                    
+                rook = self.at(rookCell)
+                state.set_piece(rookCell, State.EMPTY_CELL)
+                state.set_piece(toCell.toLeft(), rook)
+                    
+            elif self.is_queenside_castling(move):
+                
+                rookCell = None
+                if self.to_move == PieceColor.WHITE:
+                    rookCell = parseCell("1a")
+                else:
+                    rookCell = parseCell("8a")
+                
+                rook = self.at(rookCell)
+                state.set_piece(rookCell, State.EMPTY_CELL)
+                state.set_piece(toCell.toRight(), rook)
+            
         state.move_stack.append(move)
         state.to_move = opponent(self.to_move)
         
