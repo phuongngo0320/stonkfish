@@ -380,7 +380,49 @@ class State:
         self.fullmove_number = int(fen_fullmove)
     
     def getFEN(self) -> str:
-        pass
+        
+        fen_board = ""
+        count = 0
+        for row in range(State.BOARD_SIZE):
+            for col in range(State.BOARD_SIZE):
+                piece = self.at(Cell(row, col))
+                
+                if piece == State.EMPTY_CELL:
+                    if fen_board and fen_board[-1].isnumeric():
+                        fen_board[-1] = str(int(fen_board[-1]) + 1)
+                    else:
+                        fen_board += "1"
+                else:
+                    fen_board += piece.getFEN()
+                
+                count += 1
+                if count % 8 and count != 64:
+                    fen_board += "/"
+        
+        fen_turn = "w" if self.to_move == PieceColor.WHITE else "b"
+        
+        fen_castling_rights = ""
+        if self.castling_rights[0]:     fen_castling_rights += "K"
+        if self.castling_rights[1]:     fen_castling_rights += "Q"
+        if self.castling_rights[2]:     fen_castling_rights += "k"
+        if self.castling_rights[3]:     fen_castling_rights += "q"
+        if fen_castling_rights == "":   fen_castling_rights = "-"
+        
+        fen_en_passant = "-"
+        if self.en_passant_target:
+            fen_en_passant = self.en_passant_target.getFEN()
+            
+        fen_halfmove = str(self.halfmove_clock)
+        fen_fullmove = str(self.fullmove_number)
+        
+        return " ".join([
+            fen_board,
+            fen_turn,
+            fen_castling_rights,
+            fen_en_passant,
+            fen_halfmove,
+            fen_fullmove
+        ])    
     
     def __repr__(self) -> str:
         
