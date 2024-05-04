@@ -3,6 +3,9 @@ class Cell:
     def __init__(self, row: int, col: int) -> None:
         self.row = row
         self.col = col
+        
+    def toDirection(self, dir: tuple, distance: int = 1):
+        return Cell(self.row + dir[0], self.row + dir[1])
           
     def toLeft(self, distance: int = 1):
         return Cell(self.row, self.col - distance)

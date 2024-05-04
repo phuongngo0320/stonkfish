@@ -35,19 +35,18 @@ def evaluate_goal(state: State, player: PieceColor):
 
 def evaluate_material(state: State, player: PieceColor):
     
-    to_move = state.to_move
     score = sum([
         (
             evaluate_piece_type(piece_type) * 
             (
-                state.count_pieces(Piece(piece_type, to_move)) - 
-                state.count_pieces(Piece(piece_type, opponent(to_move)))
+                state.count_pieces(Piece(piece_type, player)) - 
+                state.count_pieces(Piece(piece_type, opponent(player)))
             )
         )
         for piece_type in PIECE_TYPES
     ])
     
-    return score * (1 if player == to_move else -1)
+    return score
 
 def evaluate_mobility(state: State, player: PieceColor):
     pass
