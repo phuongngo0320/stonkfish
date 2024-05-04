@@ -43,4 +43,7 @@ class Cell:
     
     def __eq__(self, value: object) -> bool:
         return self.row == value.row and self.col == value.col
+    
+    def __str__(self) -> str:
+        return str(self.col) + ' ' + str(self.row)
         

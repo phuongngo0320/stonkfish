@@ -203,6 +203,7 @@ class State:
         # WHITE PAWN
         none = PieceType.NONE
         
+
         if piece == Piece(PieceType.PAWN, PieceColor.WHITE):
             # if self.is_empty_cell(curr_cell.toUp()) is True:
             if self.at(curr_cell.toUp()).type == none:
@@ -247,9 +248,10 @@ class State:
                          curr_cell.toDown(1).toRight(2), curr_cell.toDown(1).toLeft(2)]
             for next_cell in next_cells:
                 # if self.is_empty_cell(next_cell) is False: 
+                if self.out_of_board(next_cell) is True: continue
                 if self.at(next_cell).type != none:
-                    if self.at(next_cell).color == piece_color: break
-                if self.out_of_board(next_cell) is True: break
+                    if self.at(next_cell).color == piece_color: continue
+                
                 moves.append(Move(curr_cell,next_cell))
 
         elif piece.type == PieceType.BISHOP:
@@ -258,9 +260,10 @@ class State:
                 for i in range(1,8):
                     next_cell = self.to_direction(curr_cell, direct, i)
                     # if self.is_empty_cell(next_cell) is False:
+                    if self.out_of_board(next_cell) is True: break
                     if self.at(next_cell).type != none:
                         if self.at(next_cell).color == piece_color: break
-                    if self.out_of_board(next_cell) is True: break
+                    
                     moves.append(Move(curr_cell,next_cell))
 
         elif piece.type == PieceType.ROOK:
@@ -269,9 +272,10 @@ class State:
                 for i in range(1,8):
                     next_cell = self.to_direction(curr_cell, direct, i)
                     # if self.is_empty_cell(next_cell) is False: 
+                    if self.out_of_board(next_cell) is True: break
                     if self.at(next_cell).type != none:
                         if self.at(next_cell).color == piece_color: break
-                    if self.out_of_board(next_cell) is True: break
+                    
                     moves.append(Move(curr_cell,next_cell))
                     
         elif piece.type == PieceType.QUEEN:
@@ -281,9 +285,10 @@ class State:
                 for i in range(1,8):
                     next_cell = self.to_direction(curr_cell, direct, i)
                     # if self.is_empty_cell(next_cell) is False: 
+                    if self.out_of_board(next_cell) is True: break
                     if self.at(next_cell).type != none:
                         if self.at(next_cell).color == piece_color: break
-                    if self.out_of_board(next_cell) is True: break
+                    
                     moves.append(Move(curr_cell,next_cell))
 
         elif piece.type == PieceType.KING:
@@ -292,9 +297,10 @@ class State:
             for direct in directions:
                 next_cell = self.to_direction(curr_cell, direct, 1)
                 # if self.is_empty_cell(next_cell) is False: 
+                if self.out_of_board(next_cell) is True: break
                 if self.at(next_cell).type != none:
                     if self.at(next_cell).color == piece_color: break
-                if self.out_of_board(next_cell) is True: break
+                
                 moves.append(Move(curr_cell,next_cell))
             #Castling
             if piece.color == PieceColor.WHITE:
@@ -385,14 +391,13 @@ class State:
         if curr_piece.type != PieceType.PAWN: return False
         else:
             if curr_piece.color == PieceColor.BLACK:
-                if move.fromCell.toDown(2) != move.fromCell: return False
+                if move.fromCell.toDown(2) != move.toCell: return False
                 else:
                     # if self.is_empty_cell(move.toCell) is False: return False
                     if self.at(move.toCell).type != PieceType.NONE: return False
 
             else:
-                print("check move")
-                if move.fromCell.toUp(2) != move.fromCell: return False
+                if move.fromCell.toUp(2) != move.toCell: return False
                 else:
                     print("check empty cell")
                     # if self.is_empty_cell(move.toCell) is False: return False
