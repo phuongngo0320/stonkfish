@@ -1,35 +1,37 @@
+from src.vector import Direction, Vector
+
 class Cell:
     
     def __init__(self, row: int, col: int) -> None:
         self.row = row
         self.col = col
-        
-    def toDirection(self, dir: tuple, distance: int = 1):
-        return Cell(self.row + dir[0], self.row + dir[1])
-          
+            
+    def translate(self, vec: Vector):
+        return Cell(self.row + vec.rowax, self.col + vec.colax)
+    
     def toLeft(self, distance: int = 1):
-        return Cell(self.row, self.col - distance)
+        return self.translate(Vector.left(distance))
     
     def toRight(self, distance: int = 1):
-        return Cell(self.row, self.col + distance)
+        return self.translate(Vector.right(distance))
     
     def toUp(self, distance: int = 1):
-        return Cell(self.row - distance, self.col)
+        return self.translate(Vector.up(distance))
     
     def toDown(self, distance: int = 1):
-        return Cell(self.row + distance, self.col)
+        return self.translate(Vector.down(distance))
     
     def toDownLeft(self, distance: int = 1):
-        return self.toDown(distance).toLeft(distance)
+        return self.translate(Vector.down_left(distance))
     
     def toDownRight(self, distance: int = 1):
-        return self.toDown(distance).toRight(distance)
+        return self.translate(Vector.down_right(distance))
 
     def toUpLeft(self, distance: int = 1):
-        return self.toUp(distance).toLeft(distance)
+        return self.translate(Vector.up_left(distance))
     
     def toUpRight(self, distance: int = 1):
-        return self.toUp(distance).toRight(distance)
+        return self.translate(Vector.up_right(distance))
 
     def getFEN(self):
         fen1 = str(9 - self.row)

@@ -22,7 +22,7 @@ def parsePiece(fen: str):
     fen = fen.lower()
     fen_type = None
     if fen == "p":      fen_type = PieceType.PAWN
-    elif fen == "n":      fen_type = PieceType.KNIGHT
+    elif fen == "n":    fen_type = PieceType.KNIGHT
     elif fen == "b":    fen_type = PieceType.BISHOP
     elif fen == "r":    fen_type = PieceType.ROOK
     elif fen == "q":    fen_type = PieceType.QUEEN
