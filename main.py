@@ -8,3 +8,5 @@ from src.state import State
 
 board = State()
 print(board)
+
+board = board.move(parseMove)

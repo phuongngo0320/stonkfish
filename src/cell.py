@@ -36,7 +36,7 @@ class Cell:
     def getFEN(self):
         fen1 = str(9 - self.row)
         fen2 = chr(ord("a") + self.col)
-        return fen1 + fen2
+        return fen2 + fen1
     
     def __repr__(self) -> str:
         pass
