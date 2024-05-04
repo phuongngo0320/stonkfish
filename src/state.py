@@ -201,16 +201,20 @@ class State:
         piece_color = piece.color
         moves = []
         # WHITE PAWN
+        none = PieceType.NONE
+        
         if piece == Piece(PieceType.PAWN, PieceColor.WHITE):
-            if self.is_empty_cell(curr_cell.toUp()) is True:
+            # if self.is_empty_cell(curr_cell.toUp()) is True:
+            if self.at(curr_cell.toUp()).type == none:
                 moves.append(Move(curr_cell,curr_cell.toUp()))
+
             if self.is_pawn_double_move(Move(curr_cell,curr_cell.toUp(2))) is True:
-            # if curr_cell.row == 6 and self.is_empty_cell(curr_cell.toDown(2)) is True:
                 moves.append(Move(curr_cell,curr_cell.toUp(2)))
             next_cell_capture = [curr_cell.toUpLeft(1), curr_cell.toUpRight(1)]
             for next_cell in next_cell_capture:
                 if self.out_of_board(next_cell) is True: continue
-                if self.is_empty_cell(next_cell) is False :
+                # if self.is_empty_cell(next_cell) is False :
+                if self.at(next_cell).type != none:
                     if self.at(next_cell).color == piece_color: 
                         continue
                     if self.is_en_passant(Move(curr_cell, next_cell)) is False: 
@@ -219,14 +223,16 @@ class State:
                     moves.append(Move(curr_cell,next_cell))
         # BLACK PAWN
         elif piece == Piece(PieceType.PAWN, PieceColor.BLACK):
-            if self.is_empty_cell(curr_cell.toDown()) is True:
+            # if self.is_empty_cell(curr_cell.toDown()) is True:
+            if self.at(curr_cell.toDown()).type == none:
                 moves.append(Move(curr_cell,curr_cell.toDown()))
             if self.is_pawn_double_move(Move(curr_cell,curr_cell.toDown(2))) is True:
                 moves.append(Move(curr_cell,curr_cell.toDown(2)))
             next_cell_capture = [curr_cell.toDownLeft(1), curr_cell.toDownRight(1)]
             for next_cell in next_cell_capture:
                 if self.out_of_board(next_cell) is True: continue
-                if self.is_empty_cell(next_cell) is False :
+                # if self.is_empty_cell(next_cell) is False :
+                if self.at(next_cell).type != none:
                     if self.at(next_cell).color == piece_color: 
                         continue
                     if self.is_en_passant(Move(curr_cell, next_cell)) is not True: 
@@ -240,7 +246,8 @@ class State:
                          curr_cell.toDown(2).toRight(1), curr_cell.toDown(2).toLeft(1),
                          curr_cell.toDown(1).toRight(2), curr_cell.toDown(1).toLeft(2)]
             for next_cell in next_cells:
-                if self.is_empty_cell(next_cell) is False: 
+                # if self.is_empty_cell(next_cell) is False: 
+                if self.at(next_cell).type != none:
                     if self.at(next_cell).color == piece_color: break
                 if self.out_of_board(next_cell) is True: break
                 moves.append(Move(curr_cell,next_cell))
@@ -250,7 +257,8 @@ class State:
             for direct in directions:
                 for i in range(1,8):
                     next_cell = self.to_direction(curr_cell, direct, i)
-                    if self.is_empty_cell(next_cell) is False:
+                    # if self.is_empty_cell(next_cell) is False:
+                    if self.at(next_cell).type != none:
                         if self.at(next_cell).color == piece_color: break
                     if self.out_of_board(next_cell) is True: break
                     moves.append(Move(curr_cell,next_cell))
@@ -260,7 +268,8 @@ class State:
             for direct in directions:
                 for i in range(1,8):
                     next_cell = self.to_direction(curr_cell, direct, i)
-                    if self.is_empty_cell(next_cell) is False: 
+                    # if self.is_empty_cell(next_cell) is False: 
+                    if self.at(next_cell).type != none:
                         if self.at(next_cell).color == piece_color: break
                     if self.out_of_board(next_cell) is True: break
                     moves.append(Move(curr_cell,next_cell))
@@ -271,7 +280,8 @@ class State:
             for direct in directions:
                 for i in range(1,8):
                     next_cell = self.to_direction(curr_cell, direct, i)
-                    if self.is_empty_cell(next_cell) is False: 
+                    # if self.is_empty_cell(next_cell) is False: 
+                    if self.at(next_cell).type != none:
                         if self.at(next_cell).color == piece_color: break
                     if self.out_of_board(next_cell) is True: break
                     moves.append(Move(curr_cell,next_cell))
@@ -281,7 +291,8 @@ class State:
                           'toUpRight', 'toUpLeft', 'toDownRight', 'toDownLeft']
             for direct in directions:
                 next_cell = self.to_direction(curr_cell, direct, 1)
-                if self.is_empty_cell(next_cell) is False: 
+                # if self.is_empty_cell(next_cell) is False: 
+                if self.at(next_cell).type != none:
                     if self.at(next_cell).color == piece_color: break
                 if self.out_of_board(next_cell) is True: break
                 moves.append(Move(curr_cell,next_cell))
@@ -312,7 +323,8 @@ class State:
         return False
 
     def is_capture(self, move: Move):
-        if self.is_empty_cell(move.toCell) is True: return False
+        # if self.is_empty_cell(move.toCell) is True: return False
+        if self.at(move.toCell).type == PieceType.NONE: return False
 
         to_cell_piece = self.at(move.toCell)
         if self.to_move != to_cell_piece.color: return True
@@ -362,7 +374,8 @@ class State:
         if self.is_pawn_double_move(last_move) is True and self.at(last_move.toCell).color != self.to_move:
             if move.fromCell == last_move.toCell.toRight(1) or move.fromCell == last_move.toCell.toLeft(1):
                 if move.toCell == last_move.toCell.toUp() or move.toCell == last_move.toCell.toDown(): 
-                    if self.is_empty_cell(move.toCell): return True
+                    # if self.is_empty_cell(move.toCell): return True
+                    if self.at(move.toCell).type == PieceType.NONE: return True
                 
         return False
 
@@ -374,12 +387,16 @@ class State:
             if curr_piece.color == PieceColor.BLACK:
                 if move.fromCell.toDown(2) != move.fromCell: return False
                 else:
-                    if self.is_empty_cell(move.toCell) is False: return False
+                    # if self.is_empty_cell(move.toCell) is False: return False
+                    if self.at(move.toCell).type != PieceType.NONE: return False
 
             else:
+                print("check move")
                 if move.fromCell.toUp(2) != move.fromCell: return False
                 else:
-                    if self.is_empty_cell(move.toCell) is False: return False
+                    print("check empty cell")
+                    # if self.is_empty_cell(move.toCell) is False: return False
+                    if self.at(move.toCell).type != PieceType.NONE: return False
         
         return True
 
