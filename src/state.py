@@ -389,14 +389,14 @@ class State:
                 
                 if piece == State.EMPTY_CELL:
                     if fen_board and fen_board[-1].isnumeric():
-                        fen_board[-1] = str(int(fen_board[-1]) + 1)
+                        fen_board = fen_board[:-1] + str(int(fen_board[-1]) + 1)
                     else:
                         fen_board += "1"
                 else:
                     fen_board += piece.getFEN()
                 
                 count += 1
-                if count % 8 and count != 64:
+                if count % 8 == 0 and count != 64:
                     fen_board += "/"
         
         fen_turn = "w" if self.to_move == PieceColor.WHITE else "b"
