@@ -34,7 +34,7 @@ class Cell:
         return self.translate(Vector.up_right(distance))
 
     def getFEN(self):
-        fen1 = str(9 - self.row)
+        fen1 = str(8 - self.row)
         fen2 = chr(ord("a") + self.col)
         return fen2 + fen1
     
