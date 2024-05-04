@@ -8,6 +8,9 @@ class Move:
         self.toCell = toCell
         self.promotion = promotion
         
+    def is_promotion(self):
+        return self.promotion != PieceType.NONE
+        
     def getFEN(self) -> str:
         pass
     

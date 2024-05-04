@@ -79,7 +79,7 @@ class State:
         state = deepcopy(self)
         
         # promo move
-        if move.promotion != State.EMPTY_CELL:
+        if move.is_promotion():
             if fromCell != toCell:
                 raise Exception(f"Invalid promotion: {move}")
             state.set_piece(fromCell, move.promotion)
