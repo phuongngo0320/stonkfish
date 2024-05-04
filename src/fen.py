@@ -1,4 +1,5 @@
 from src.cell import Cell
+from src.move import Move
 from src.piece import Piece, PieceColor, PieceType
 
 def parseBoard(fen: str): # not parsing
@@ -38,4 +39,11 @@ def parseCell(fen: str):
     col = ord(fen[0]) - ord("a")
     
     return Cell(row, col)
+
+def parseMove(fen: str):
+    
+    return Move(
+        parseCell(fen[:2]),
+        parseCell(fen[2:])
+    )
 
