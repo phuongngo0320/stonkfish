@@ -61,7 +61,7 @@ class State:
         
         old_piece = self.at(cell)
         if old_piece != State.EMPTY_CELL:
-            self.piecemap[old_piece].remove(cell)
+            self.piecemap[old_piece.getFEN()].remove(cell)
         
         self.board[cell.row][cell.col] = new_piece
         
