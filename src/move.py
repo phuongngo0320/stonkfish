@@ -12,7 +12,7 @@ class Move:
         return self.promotion != PieceType.NONE
         
     def getFEN(self) -> str:
-        pass
+        return self.fromCell.getFEN() + self.toCell.getFEN()
     
     def __eq__(self, value: object) -> bool:
         return (
@@ -21,5 +21,5 @@ class Move:
             self.promotion == value.promotion
         )
     
-    def __str__(self) -> str:
-        raise NotImplementedError
+    def __repr__(self) -> str:
+        return self.getFEN()
