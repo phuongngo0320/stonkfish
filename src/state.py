@@ -12,7 +12,7 @@ class State:
     
     def __init__(self, fen=START_FEN) -> None:
         
-        self.result = Result(ResultType.NONE)
+        self.result = None
         
         # board
         self.board: list[list[Piece]] = [
@@ -34,6 +34,9 @@ class State:
         ])
         self.move_stack = [] 
         self.parseFEN(fen)
+        
+    def game_over(self):
+        return self.result is not None
         
     def out_of_board(self, cell: Cell):
         if 0 <= cell.row < State.BOARD_SIZE and 0 <= cell.col < State.BOARD_SIZE:
