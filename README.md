@@ -34,10 +34,19 @@ state.board: list[list[Piece]]
 ```
 See `piece.py` for piece format.
 
+- Use `state.at()` to get a piece at a `Cell`:
+
+```py
+piece = state.at(Cell(7, 0)) # get piece at square a1
+
+# or use FEN
+piece = state.at(parseCell("a1"))
+```
+
 - Empty cells are stored as `Piece(PieceType.NONE)`. You can check for empty cells using:
 
 ```py
-piece = State.EMPTY_CELL
+piece = state.at(parseCell("a2"))
 state.is_empty_cell(piece) # True
 ```
 
