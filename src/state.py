@@ -24,7 +24,7 @@ class State:
         ]
         
         self.to_move = PieceColor.WHITE
-        self.castling_rights = (None, None, None, None) # KQkq
+        self.castling_rights = [None, None, None, None] # KQkq
         self.en_passant_target = None
         self.halfmove_clock = 0
         self.fullmove_number = 1
@@ -38,7 +38,7 @@ class State:
         self.check_stack = []
         self.check = False # check if current state is a check
         
-        self.temp_castling_revoked = (False, False, False, False)
+        self.temp_castling_revoked = [False, False, False, False]
         
         # parse input
         self.parseFEN(fen)
