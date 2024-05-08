@@ -567,7 +567,7 @@ class State:
     def is_checkmate(self):
 
         enemy_color = opponent(self.to_move)
-
+        
         own_moves = self.possible_moves_color(self.to_move)
         for move in own_moves:
             check_state = self.move(move)
