@@ -566,12 +566,12 @@ class State:
                 
         self.to_move = PieceColor.WHITE if fen_turn == "w" else PieceColor.BLACK
         
-        self.castling_rights = (
+        self.castling_rights = [
             "K" in fen_castling_rights,
             "Q" in fen_castling_rights,
             "k" in fen_castling_rights,
             "q" in fen_castling_rights
-        )
+        ]
         
         if fen_en_passant == "-":
             self.en_passant_target = None
