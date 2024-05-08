@@ -79,7 +79,7 @@ class State:
         if new_piece != State.EMPTY_CELL:
             self.piecemap[new_piece.getFEN()].append(cell)
     
-    def move(self, move: Move):
+    def move(self, move: Move, update=True):
         
         fromCell = move.fromCell
         toCell = move.toCell
@@ -124,8 +124,12 @@ class State:
                 rook = self.at(rookCell)
                 state.set_piece(rookCell, State.EMPTY_CELL)
                 state.set_piece(toCell.toRight(), rook)
+        
+        if not update:    
+            return state
             
         state.move_stack.append(move)
+        
         if self.is_check(move):     
             state.check_stack.append(True)
             state.check = True
