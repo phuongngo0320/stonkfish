@@ -241,7 +241,7 @@ class State:
         
         # TODO
         # CASE: check opponent king --> disabled opponent's castling right (temporary revoke)
-        if self.is_check(move):
+        if state.check:
             if self.to_move == PieceColor.WHITE:
                 if self.castling_rights[2]:
                     state.castling_rights[2] = False
@@ -322,12 +322,83 @@ class State:
             return curr_cell.toDownRight(distance)
         elif direc == 'toDownLeft':
             return curr_cell.toDownLeft(distance)
+        
+    def all_danger_zone_move(self, color:PieceColor):
+        moves =[]
+        for piece, curr_cell in self.piecemap.items():
+            curr_piece = parsePiece(piece)
+            if curr_piece.color == color:
+                for cell in curr_cell:
+                    moves += self.danger_zone_move(curr_piece,cell)
+        return moves
+
+    def danger_zone_move(self, piece:Piece, curr_cell:Cell):
+        moves = []
+        none = State.EMPTY_CELL
+        # print(moves)
+        # if piece.color != self.to_move: raise Exception('Not your turn!!!')
+
+        if self.result is not None: return moves
+        # WHITE PAWN
+        if piece == Piece(PieceType.PAWN, PieceColor.WHITE):
+            next_cell_capture = [curr_cell.toUpLeft(1), curr_cell.toUpRight(1)]
+            for next_cell in next_cell_capture:
+                if self.out_of_board(next_cell) is True: continue
+                if self.at(next_cell) != none:
+                    moves.append(Move(curr_cell,next_cell))
+
+        # BLACK PAWN
+        elif piece == Piece(PieceType.PAWN, PieceColor.BLACK):
+            next_cell_capture = [curr_cell.toDownLeft(1), curr_cell.toDownRight(1)]
+            for next_cell in next_cell_capture:
+                if self.out_of_board(next_cell) is True: continue
+                if self.at(next_cell) != none:
+                    moves.append(Move(curr_cell,next_cell))
+
+        elif piece.type == PieceType.KNIGHT: 
+            next_cells = [curr_cell.toUp(2).toRight(1), curr_cell.toUp(2).toLeft(1),
+                         curr_cell.toUp(1).toRight(2), curr_cell.toUp(1).toLeft(2),
+                         curr_cell.toDown(2).toRight(1), curr_cell.toDown(2).toLeft(1),
+                         curr_cell.toDown(1).toRight(2), curr_cell.toDown(1).toLeft(2)]
+            for next_cell in next_cells:
+
+                if self.out_of_board(next_cell) is True: continue
+
+                moves.append(Move(curr_cell,next_cell))
+
+        elif piece.type == PieceType.BISHOP:
+            directions = ['toUpRight', 'toUpLeft', 'toDownRight', 'toDownLeft']
+            for direct in directions:
+                for i in range(1,8):
+                    next_cell = self.to_direction(curr_cell, direct, i)
+                    if self.out_of_board(next_cell) is True: break                    
+                    moves.append(Move(curr_cell,next_cell))
+
+        elif piece.type == PieceType.ROOK:
+            directions = ['toUp', 'toDown', 'toLeft', 'toRight']
+            for direct in directions:
+                for i in range(1,8):
+                    next_cell = self.to_direction(curr_cell, direct, i) 
+                    if self.out_of_board(next_cell) is True: break
+                    moves.append(Move(curr_cell,next_cell))
+                    
+        elif piece.type == PieceType.QUEEN:
+            directions = ['toUp', 'toDown', 'toLeft', 'toRight',
+                          'toUpRight', 'toUpLeft', 'toDownRight', 'toDownLeft']
+            for direct in directions:
+                for i in range(1,8):
+                    next_cell = self.to_direction(curr_cell, direct, i)
+                    if self.out_of_board(next_cell) is True: break
+                    moves.append(Move(curr_cell,next_cell))
+
+        return moves
+
     
     def possible_piece_moves(self, piece:Piece, curr_cell:Cell) -> list[Move]:
         piece_color = piece.color
         moves = []
         none = State.EMPTY_CELL
-
+        # print(moves)
         if piece.color != self.to_move: raise Exception('Not your turn!!!')
 
         if self.result is not None: return moves
@@ -447,7 +518,20 @@ class State:
                     if Move(curr_cell,curr_cell.toLeft()) in moves:
                         if self.at(next_cell) == none:
                             moves.append(Move(curr_cell,curr_cell.toLeft(2)))
-
+        # print(moves)
+        remove_move = []
+        print(len(moves))
+        for i, check_move in enumerate(moves):
+            # if self.at(check_move.fromCell) == State.EMPTY_CELL: print(check_move)
+            enemy_moves = self.all_danger_zone_move(opponent(self.to_move))
+            for enemy_move in enemy_moves:
+                if check_move.toCell == enemy_move.toCell:
+                # if check_state.is_capture_king(enemy_move):
+                    # moves.remove(check_move)
+                    remove_move.append(check_move)
+                    break
+        for i in remove_move:
+            moves.remove(i)
         return moves
     
     # -----------------------------------------------
@@ -464,6 +548,7 @@ class State:
 
     def is_capture(self, move: Move):
         # if self.is_empty_cell(move.toCell) is True: return False
+        # if self.at(move.toCell).color == self.to_move: raise Exception("IMPOSTER!!")
         if self.at(move.toCell) == State.EMPTY_CELL: return False
 
         to_cell_piece = self.at(move.toCell)
