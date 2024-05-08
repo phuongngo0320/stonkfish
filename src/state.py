@@ -201,7 +201,7 @@ class State:
         piece_color = piece.color
         moves = []
         # WHITE PAWN
-        none = PieceType.NONE
+        none = State.EMPTY_CELL
         
 
         if piece == Piece(PieceType.PAWN, PieceColor.WHITE):
@@ -297,22 +297,34 @@ class State:
             for direct in directions:
                 next_cell = self.to_direction(curr_cell, direct, 1)
                 # if self.is_empty_cell(next_cell) is False: 
-                if self.out_of_board(next_cell) is True: break
+                if self.out_of_board(next_cell) is True: continue
                 if self.at(next_cell).type != none:
-                    if self.at(next_cell).color == piece_color: break
+                    if self.at(next_cell).color == piece_color: continue
                 
                 moves.append(Move(curr_cell,next_cell))
             #Castling
             if piece.color == PieceColor.WHITE:
                 if self.castling_rights[0] == True:
-                    moves.append(Move(curr_cell,curr_cell.toRight(2)))
+                    next_cell = curr_cell.toRight(2)
+                    if Move(curr_cell,curr_cell.toRight()) in moves:
+                        if self.at(next_cell).type == none:
+                            moves.append(Move(curr_cell,curr_cell.toRight(2)))
                 if self.castling_rights[1] == True:
-                    moves.append(Move(curr_cell,curr_cell.toLeft(2)))
+                    next_cell = curr_cell.toLeft(2)
+                    if Move(curr_cell,curr_cell.toLeft()) in moves:
+                        if self.at(next_cell).type == none:
+                            moves.append(Move(curr_cell,curr_cell.toLeft(2)))
             else:
                 if self.castling_rights[2] == True:
-                    moves.append(Move(curr_cell,curr_cell.toRight(2)))
+                    next_cell = curr_cell.toRight(2)
+                    if Move(curr_cell,curr_cell.toRight()) in moves:
+                        if self.at(next_cell).type == none:
+                            moves.append(Move(curr_cell,curr_cell.toRight(2)))
                 if self.castling_rights[3] == True:
-                    moves.append(Move(curr_cell,curr_cell.toLeft(2)))
+                    next_cell = curr_cell.toLeft(2)
+                    if Move(curr_cell,curr_cell.toLeft()) in moves:
+                        if self.at(next_cell).type == none:
+                            moves.append(Move(curr_cell,curr_cell.toLeft(2)))
 
         return moves
     
@@ -330,7 +342,7 @@ class State:
 
     def is_capture(self, move: Move):
         # if self.is_empty_cell(move.toCell) is True: return False
-        if self.at(move.toCell).type == PieceType.NONE: return False
+        if self.at(move.toCell) == State.EMPTY_CELL: return False
 
         to_cell_piece = self.at(move.toCell)
         if self.to_move != to_cell_piece.color: return True
@@ -374,14 +386,20 @@ class State:
     def is_queenside_castling(self, move: Move):
         return self.check_castling_color(move,self.at(move.fromCell).color,False)
     
+
+    # def last_state(self, last_move: Move):
+        
+
     def is_en_passant(self, move: Move):
         last_move = self.move_stack[-1]
+        
         if self.at(move.fromCell).type != PieceType.PAWN: return False
-        if self.is_pawn_double_move(last_move) is True and self.at(last_move.toCell).color != self.to_move:
-            if move.fromCell == last_move.toCell.toRight(1) or move.fromCell == last_move.toCell.toLeft(1):
-                if move.toCell == last_move.toCell.toUp() or move.toCell == last_move.toCell.toDown(): 
-                    # if self.is_empty_cell(move.toCell): return True
-                    if self.at(move.toCell).type == PieceType.NONE: return True
+        if self.at(self.en_passant_target) ==  State.EMPTY_CELL:
+
+            if self.at(last_move.toCell).color != self.to_move:
+                if move.fromCell == last_move.toCell.toRight(1) or move.fromCell == last_move.toCell.toLeft(1):
+                    if move.toCell == last_move.toCell.toUp() or move.toCell == last_move.toCell.toDown(): 
+                        if self.at(move.toCell) == State.EMPTY_CELL: return True
                 
         return False
 
@@ -394,14 +412,13 @@ class State:
                 if move.fromCell.toDown(2) != move.toCell: return False
                 else:
                     # if self.is_empty_cell(move.toCell) is False: return False
-                    if self.at(move.toCell).type != PieceType.NONE: return False
+                    if self.at(move.toCell) != State.EMPTY_CELL: return False
 
             else:
                 if move.fromCell.toUp(2) != move.toCell: return False
                 else:
-                    print("check empty cell")
                     # if self.is_empty_cell(move.toCell) is False: return False
-                    if self.at(move.toCell).type != PieceType.NONE: return False
+                    if self.at(move.toCell) != State.EMPTY_CELL: return False
         
         return True
 
