@@ -36,6 +36,7 @@ class State:
         ])
         self.move_stack = [] 
         self.check_stack = []
+        self.check = False # check if current state is a check
         
         self.temp_castling_revoked = (False, False, False, False)
         
@@ -125,7 +126,12 @@ class State:
                 state.set_piece(toCell.toRight(), rook)
             
         state.move_stack.append(move)
-        if self.is_check(move):     state.check_stack.append(True)
+        if self.is_check(move):     
+            state.check_stack.append(True)
+            state.check = True
+        else:
+            state.check_stack.append(False)
+            state.check = False
         state.to_move = opponent(self.to_move)
         
         # castling right state switch -----------------------------------------------
@@ -536,7 +542,7 @@ class State:
         pass
     
     def is_checking(self):
-        return self.check_stack[-1]
+        return self.check
     
     # -----------------------------------------------
     
