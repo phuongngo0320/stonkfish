@@ -28,11 +28,18 @@ class State:
         self.en_passant_target = None
         self.halfmove_clock = 0
         self.fullmove_number = 1
+        
+        # helper states
         self.piecemap = dict([
             (p, [])
             for p in ['p', 'n', 'b', 'r', 'q', 'k', 'P', 'N', 'B', 'R', 'Q', 'K']
         ])
         self.move_stack = [] 
+        self.check_stack = []
+        
+        self.temp_castling_revoked = (False, False, False, False)
+        
+        # parse input
         self.parseFEN(fen)
         
     def game_over(self):
@@ -118,8 +125,22 @@ class State:
                 state.set_piece(toCell.toRight(), rook)
             
         state.move_stack.append(move)
+        if self.is_check(move):
+            state.check_stack.append(True)
         state.to_move = opponent(self.to_move)
         
+        # castling right state switch -----------------------------------------------
+        
+        # CASE: gain castling right after temporary revoke, if no more check
+        if not self.is_checking():
+            if self.at(parseCell("e8")).getFEN() == "k":
+                if self.temp_castling_revoked[2]:   state.castling_rights[2] = True
+                if self.temp_castling_revoked[3]:   state.castling_rights[3] = True
+            if self.at(parseCell("e1")).getFEN() == "K":
+                if self.temp_castling_revoked[0]:   state.castling_rights[0] = True
+                if self.temp_castling_revoked[1]:   state.castling_rights[1] = True    
+        
+        # check castling move
         if self.is_kingside_castling(move):
             if self.to_move == PieceColor.WHITE:
                 state.castling_rights[0] = False
@@ -131,9 +152,64 @@ class State:
             else:
                 state.castling_rights[3] = False
                 
+        # check disabled castling rights
+        
+        # CASE: moved king/rook
+        moved_piece = self.at(toCell)
+        if self.is_empty_cell(moved_piece): raise Exception("Moving nothing!")
+        
+            # case: K moved
+        if fromCell == self.at(parseCell("e1")) and moved_piece.getFEN() == "K":
+            
+            if self.castling_rights[0]:
+                state.castling_rights[0] = False
+            if self.castling_rights[1]:
+                state.castling_rights[1] = False
+            
+            # case: left R moved
+        if fromCell == self.at(parseCell("a1")) and moved_piece.getFEN() == "R" and self.castling_rights[1]:
+            state.castling_rights[1] = False
+            
+            # case right R moved
+        if fromCell == self.at(parseCell("h1")) and moved_piece.getFEN() == "R" and self.castling_rights[0]:
+            state.castling_rights[0] = False
+            
+            # case: k moved
+        if fromCell == self.at(parseCell("e8")) and moved_piece.getFEN() == "k":
+            
+            if self.castling_rights[2]:
+                state.castling_rights[2] = False
+            if self.castling_rights[3]:
+                state.castling_rights[3] = False
+                
+            # case: left r moved
+        if fromCell == self.at(parseCell("a8")) and moved_piece.getFEN() == "r" and self.castling_rights[3]:
+            state.castling_rights[3] = False
+            
+            # case: right r moved
+        if fromCell == self.at(parseCell("h8")) and moved_piece.getFEN() == "r" and self.castling_rights[2]:
+            state.castling_rights[2] = False
+        
+        # CASE: check opponent king --> disabled opponent's castling right (temporary revoke)
+        if self.is_check(move):
+            if self.to_move == PieceColor.WHITE:
+                if self.castling_rights[2]:
+                    state.castling_rights[2] = False
+                    state.temp_castling_revoked[2] = True
+                if self.castling_rights[3]:
+                    state.castling_rights[3] = False
+                    state.temp_castling_revoked[3] = True
+            else:
+                if self.castling_rights[0]:
+                    state.castling_rights[0] = False
+                    state.temp_castling_revoked[0] = True
+                if self.castling_rights[1]:
+                    state.castling_rights[1] = False
+                    state.temp_castling_revoked[1] = True
+        
+        # en passant target state switch ---------------------------------
         if self.en_passant_target:
-            if self.is_en_passant(move):
-                state.en_passant_target = None
+            state.en_passant_target = None
         else:
             if self.is_pawn_double_move(move):
                 pawn_cell = move.toCell
@@ -317,6 +393,9 @@ class State:
         pass
     
     # -----------------------------------------------
+    # check state
+    
+    # case: game over
     def is_checkmate(self):
         # if self.to_move == PieceColor.BLACK: 
         #     enemy_color = PieceColor.WHITE
@@ -344,6 +423,10 @@ class State:
     
     def is_threefold_repetition(self):
         pass
+    
+    # case: check state
+    def is_checking(self):
+        return self.check_stack[-1]
     
     # -----------------------------------------------
     
