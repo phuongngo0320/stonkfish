@@ -117,9 +117,9 @@ class State:
                 
                 rookCell = None
                 if self.to_move == PieceColor.WHITE:
-                    rookCell = parseCell("1a")
+                    rookCell = parseCell("a1")
                 else:
-                    rookCell = parseCell("8a")
+                    rookCell = parseCell("a8")
                 
                 rook = self.at(rookCell)
                 state.set_piece(rookCell, State.EMPTY_CELL)
