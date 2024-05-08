@@ -105,9 +105,9 @@ class State:
                 
                 rookCell = None
                 if self.to_move == PieceColor.WHITE:
-                    rookCell = parseCell("1h")
+                    rookCell = parseCell("h1")
                 else:
-                    rookCell = parseCell("8h")
+                    rookCell = parseCell("h8")
                     
                 rook = self.at(rookCell)
                 state.set_piece(rookCell, State.EMPTY_CELL)
@@ -580,6 +580,8 @@ class State:
         
         self.halfmove_clock = int(fen_halfmove)
         self.fullmove_number = int(fen_fullmove)
+        # TODO: parse check state
+        # TODO: parse game over state
     
     def getFEN(self) -> str:
         
