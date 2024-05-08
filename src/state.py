@@ -222,21 +222,21 @@ class State:
                 if not self.out_of_board(left):
                     if self.at(left) == Piece(PieceType.PAWN, opponent(self.to_move)):
                         if self.to_move == PieceColor.WHITE:
-                            self.en_passant_target = left.toUp()
+                            state.en_passant_target = pawn_cell.toDown()
                         else:
-                            self.en_passant_target = left.toDown()
+                            state.en_passant_target = pawn_cell.toUp()
                 
                 if not self.out_of_board(right):
                     if self.at(right) == Piece(PieceType.PAWN, opponent(self.to_move)):
                         if self.to_move == PieceColor.WHITE:
-                            self.en_passant_target = right.toUp()
+                            state.en_passant_target = pawn_cell.toDown()
                         else:
-                            self.en_passant_target = right.toDown()
+                            state.en_passant_target = pawn_cell.toUp()
                 
         if self.is_half_move(move):
-            self.halfmove_clock += 1
+            state.halfmove_clock += 1
         if self.to_move == PieceColor.BLACK:
-            self.fullmove_number += 1
+            state.fullmove_number += 1
     
         return state
     # -----------------------------------------------
