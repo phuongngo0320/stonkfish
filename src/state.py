@@ -386,17 +386,18 @@ class State:
         
 
     def is_en_passant(self, move: Move):
-        last_move = self.move_stack[-1]
+        # last_move = self.move_stack[-1]
         
 
         if self.at(move.fromCell).type != PieceType.PAWN: return False
-
-        if self.at(self.en_passant_target) ==  State.EMPTY_CELL:
-            if self.en_passant_target == move.toCell:
-                if self.at(last_move.toCell).color != self.to_move:
-                    if move.fromCell == last_move.toCell.toRight(1) or move.fromCell == last_move.toCell.toLeft(1):
-                        if move.toCell == last_move.toCell.toUp() or move.toCell == last_move.toCell.toDown(): 
-                            if self.at(move.toCell) == State.EMPTY_CELL: return True
+        if self.en_passant_target is not None:
+            if self.at(self.en_passant_target) ==  State.EMPTY_CELL:
+                if self.en_passant_target == move.toCell:
+                # if self.at(last_move.toCell).color != self.to_move:
+                #     if move.fromCell == last_move.toCell.toRight(1) or move.fromCell == last_move.toCell.toLeft(1):
+                #         if move.toCell == last_move.toCell.toUp() or move.toCell == last_move.toCell.toDown(): 
+                            if self.at(move.toCell) == State.EMPTY_CELL: 
+                                return True
                     
         return False
 
