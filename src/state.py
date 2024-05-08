@@ -326,11 +326,12 @@ class State:
     def possible_piece_moves(self, piece:Piece, curr_cell:Cell) -> list[Move]:
         piece_color = piece.color
         moves = []
-        # WHITE PAWN
         none = State.EMPTY_CELL
 
         if piece.color != self.to_move: raise Exception('Not your turn!!!')
 
+        if self.result is not None: return moves
+        # WHITE PAWN
         if piece == Piece(PieceType.PAWN, PieceColor.WHITE):
             if self.at(curr_cell.toUp()) == none:
                 moves.append(Move(curr_cell,curr_cell.toUp()))
@@ -573,7 +574,9 @@ class State:
                 check_state = self.move(move)
                 enemy_moves = check_state.possible_moves_color(enemy_color)
                 for enemy_move in enemy_moves:
-                    if check_state.is_capture_king(enemy_move): return True
+                    if check_state.is_capture_king(enemy_move): 
+                        self.result = Result(ResultType.CHECKMATE, opponent(self.to_move))
+                        return True
         return False
 
     
@@ -585,7 +588,9 @@ class State:
                 check_state = self.move(move)
                 enemy_moves = check_state.possible_moves_color(enemy_color)
                 for enemy_move in enemy_moves:
-                    if check_state.is_capture_king(enemy_move): return True
+                    if check_state.is_capture_king(enemy_move): 
+                        self.result = Result(ResultType.STALEMATE)
+                        return True
         return False
     
     def is_insufficient_material(self):
