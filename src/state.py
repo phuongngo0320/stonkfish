@@ -140,11 +140,19 @@ class State:
         # CASE: gain castling right after temporary revoke, if no more check
         if not self.is_checking():
             if self.at(parseCell("e8")).getFEN() == "k":
-                if self.temp_castling_revoked[2]:   state.castling_rights[2] = True
-                if self.temp_castling_revoked[3]:   state.castling_rights[3] = True
+                if self.temp_castling_revoked[2]:   
+                    state.castling_rights[2] = True
+                    state.temp_castling_revoked[2] = False
+                if self.temp_castling_revoked[3]:   
+                    state.castling_rights[3] = True
+                    state.temp_castling_revoked[3] = False
             if self.at(parseCell("e1")).getFEN() == "K":
-                if self.temp_castling_revoked[0]:   state.castling_rights[0] = True
-                if self.temp_castling_revoked[1]:   state.castling_rights[1] = True    
+                if self.temp_castling_revoked[0]:   
+                    state.castling_rights[0] = True
+                    state.temp_castling_revoked[0] = False
+                if self.temp_castling_revoked[1]:   
+                    state.castling_rights[1] = True    
+                    state.temp_castling_revoked[1] = False
         
         # check castling move
         if self.is_kingside_castling(move):
