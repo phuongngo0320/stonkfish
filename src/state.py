@@ -125,10 +125,17 @@ class State:
                 state.set_piece(rookCell, State.EMPTY_CELL)
                 state.set_piece(toCell.toRight(), rook)
         
+        state.move_stack.append(move)
+        
+        if self.is_checkmate():
+            state.result = Result(ResultType.CHECKMATE, opponent(self.to_move))
+            return state
+        if self.is_stalemate():
+            state.result = Result(ResultType.STALEMATE)
+            return state    
+        
         if not update:    
             return state
-            
-        state.move_stack.append(move)
         
         if self.is_check(move):     
             state.check_stack.append(True)
