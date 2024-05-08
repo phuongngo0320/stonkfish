@@ -35,9 +35,9 @@ class State:
             for p in ['p', 'n', 'b', 'r', 'q', 'k', 'P', 'N', 'B', 'R', 'Q', 'K']
         ])
         self.move_stack = [] 
-        self.check_stack = []
+        # self.check_stack = []
         
-        self.temp_castling_revoked = (False, False, False, False)
+        # self.temp_castling_revoked = (False, False, False, False)
         
         # parse input
         self.parseFEN(fen)
@@ -125,20 +125,21 @@ class State:
                 state.set_piece(toCell.toRight(), rook)
             
         state.move_stack.append(move)
-        if self.is_check(move):
-            state.check_stack.append(True)
+        # if self.is_check(move):
+        #     state.check_stack.append(True)
         state.to_move = opponent(self.to_move)
         
         # castling right state switch -----------------------------------------------
         
+        # TODO
         # CASE: gain castling right after temporary revoke, if no more check
-        if not self.is_checking():
-            if self.at(parseCell("e8")).getFEN() == "k":
-                if self.temp_castling_revoked[2]:   state.castling_rights[2] = True
-                if self.temp_castling_revoked[3]:   state.castling_rights[3] = True
-            if self.at(parseCell("e1")).getFEN() == "K":
-                if self.temp_castling_revoked[0]:   state.castling_rights[0] = True
-                if self.temp_castling_revoked[1]:   state.castling_rights[1] = True    
+        # if not self.is_checking():
+        #     if self.at(parseCell("e8")).getFEN() == "k":
+        #         if self.temp_castling_revoked[2]:   state.castling_rights[2] = True
+        #         if self.temp_castling_revoked[3]:   state.castling_rights[3] = True
+        #     if self.at(parseCell("e1")).getFEN() == "K":
+        #         if self.temp_castling_revoked[0]:   state.castling_rights[0] = True
+        #         if self.temp_castling_revoked[1]:   state.castling_rights[1] = True    
         
         # check castling move
         if self.is_kingside_castling(move):
@@ -155,11 +156,11 @@ class State:
         # check disabled castling rights
         
         # CASE: moved king/rook
-        moved_piece = self.at(toCell)
-        if self.is_empty_cell(moved_piece): raise Exception("Moving nothing!")
+        if self.is_empty_cell(fromCell): raise Exception("Moving nothing!")
+        moved_piece = self.at(fromCell)
         
             # case: K moved
-        if fromCell == self.at(parseCell("e1")) and moved_piece.getFEN() == "K":
+        if fromCell.getFEN() == "e1" and moved_piece.getFEN() == "K":
             
             if self.castling_rights[0]:
                 state.castling_rights[0] = False
@@ -167,15 +168,15 @@ class State:
                 state.castling_rights[1] = False
             
             # case: left R moved
-        if fromCell == self.at(parseCell("a1")) and moved_piece.getFEN() == "R" and self.castling_rights[1]:
+        if fromCell.getFEN() == "a1" and moved_piece.getFEN() == "R" and self.castling_rights[1]:
             state.castling_rights[1] = False
             
             # case right R moved
-        if fromCell == self.at(parseCell("h1")) and moved_piece.getFEN() == "R" and self.castling_rights[0]:
+        if fromCell.getFEN() == "h1" and moved_piece.getFEN() == "R" and self.castling_rights[0]:
             state.castling_rights[0] = False
             
             # case: k moved
-        if fromCell == self.at(parseCell("e8")) and moved_piece.getFEN() == "k":
+        if fromCell.getFEN() == "e8" and moved_piece.getFEN() == "k":
             
             if self.castling_rights[2]:
                 state.castling_rights[2] = False
@@ -183,29 +184,30 @@ class State:
                 state.castling_rights[3] = False
                 
             # case: left r moved
-        if fromCell == self.at(parseCell("a8")) and moved_piece.getFEN() == "r" and self.castling_rights[3]:
+        if fromCell.getFEN() == "a8" and moved_piece.getFEN() == "r" and self.castling_rights[3]:
             state.castling_rights[3] = False
             
             # case: right r moved
-        if fromCell == self.at(parseCell("h8")) and moved_piece.getFEN() == "r" and self.castling_rights[2]:
+        if fromCell.getFEN() == "h8" and moved_piece.getFEN() == "r" and self.castling_rights[2]:
             state.castling_rights[2] = False
         
+        # TODO
         # CASE: check opponent king --> disabled opponent's castling right (temporary revoke)
-        if self.is_check(move):
-            if self.to_move == PieceColor.WHITE:
-                if self.castling_rights[2]:
-                    state.castling_rights[2] = False
-                    state.temp_castling_revoked[2] = True
-                if self.castling_rights[3]:
-                    state.castling_rights[3] = False
-                    state.temp_castling_revoked[3] = True
-            else:
-                if self.castling_rights[0]:
-                    state.castling_rights[0] = False
-                    state.temp_castling_revoked[0] = True
-                if self.castling_rights[1]:
-                    state.castling_rights[1] = False
-                    state.temp_castling_revoked[1] = True
+        # if self.is_check(move):
+        #     if self.to_move == PieceColor.WHITE:
+        #         if self.castling_rights[2]:
+        #             state.castling_rights[2] = False
+        #             state.temp_castling_revoked[2] = True
+        #         if self.castling_rights[3]:
+        #             state.castling_rights[3] = False
+        #             state.temp_castling_revoked[3] = True
+        #     else:
+        #         if self.castling_rights[0]:
+        #             state.castling_rights[0] = False
+        #             state.temp_castling_revoked[0] = True
+        #         if self.castling_rights[1]:
+        #             state.castling_rights[1] = False
+        #             state.temp_castling_revoked[1] = True
         
         # en passant target state switch ---------------------------------
         if self.en_passant_target:
@@ -423,10 +425,6 @@ class State:
     
     def is_threefold_repetition(self):
         pass
-    
-    # case: check state
-    def is_checking(self):
-        return self.check_stack[-1]
     
     # -----------------------------------------------
     
