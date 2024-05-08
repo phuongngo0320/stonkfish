@@ -567,18 +567,26 @@ class State:
     def is_checkmate(self):
 
         enemy_color = opponent(self.to_move)
-        
-        own_moves = self.possible_moves_color(self.to_move)
-        for move in own_moves:
-            check_state = self.move(move)
-            enemy_moves = check_state.possible_moves_color(enemy_color)
-            for enemy_move in enemy_moves:
-                if check_state.is_capture_king(enemy_move): return True
+        if self.is_checking:
+            own_moves = self.possible_moves_color(self.to_move)
+            for move in own_moves:
+                check_state = self.move(move)
+                enemy_moves = check_state.possible_moves_color(enemy_color)
+                for enemy_move in enemy_moves:
+                    if check_state.is_capture_king(enemy_move): return True
         return False
 
     
     def is_stalemate(self):
-        pass
+        enemy_color = opponent(self.to_move)
+        if not self.is_checking:
+            own_moves = self.possible_moves_color(self.to_move)
+            for move in own_moves:
+                check_state = self.move(move)
+                enemy_moves = check_state.possible_moves_color(enemy_color)
+                for enemy_move in enemy_moves:
+                    if check_state.is_capture_king(enemy_move): return True
+        return False
     
     def is_insufficient_material(self):
         pass
