@@ -430,6 +430,7 @@ class State:
         if self.result is not None: return moves
         # WHITE PAWN
         if piece == Piece(PieceType.PAWN, PieceColor.WHITE):
+            if self.out_of_board(curr_cell.toUp()): return moves
             if self.at(curr_cell.toUp()) == none:
                 moves.append(Move(curr_cell,curr_cell.toUp()))
             if curr_cell.row == 6:
@@ -448,6 +449,7 @@ class State:
                         moves.append(Move(curr_cell,next_cell))
         # BLACK PAWN
         elif piece == Piece(PieceType.PAWN, PieceColor.BLACK):
+            if self.out_of_board(curr_cell.toDown()): return moves
             if self.at(curr_cell.toDown()) == none:
                 moves.append(Move(curr_cell,curr_cell.toDown()))
             if curr_cell.row == 1:
@@ -563,9 +565,9 @@ class State:
                     # enemy_moves = check_state.possible_moves_color(opponent(self.to_move))
                     for enemy_move in enemy_moves:
                         if check_move.toCell == enemy_move.toCell:
-                            print('compare: ')
-                            print(enemy_move)
-                            print(check_move)
+                            # print('compare: ')
+                            # print(enemy_move)
+                            # print(check_move)
                         # if check_state.is_capture_king(enemy_move):
                             # moves.remove(check_move)
                             remove_move.append(check_move)
