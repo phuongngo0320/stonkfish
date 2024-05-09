@@ -425,9 +425,10 @@ class State:
         # print(moves)
         # if piece.color != self.to_move: raise Exception('Not your turn!!!')
         if self.result is not None: return moves
-        if self.promo == True and piece.type != PieceType.PAWN: return moves
-        elif self.promo == True and piece.type == PieceType.PAWN:
-            if curr_cell.row != 7 or curr_cell != 0: return moves 
+
+        if self.promo == True and piece.type != PieceType.PAWN and piece.color == self.to_move: return moves
+        elif self.promo == True and piece.type == PieceType.PAWN and piece.color == self.to_move:
+            if curr_cell.row != 7 and curr_cell.row != 0: return moves 
 
         # WHITE PAWN
         if piece == Piece(PieceType.PAWN, PieceColor.WHITE):
