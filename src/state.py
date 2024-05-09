@@ -127,6 +127,9 @@ class State:
         
         state.move_stack.append(move)
         
+        if not update:    
+            return state
+        
         if self.is_checkmate():
             state.result = Result(ResultType.CHECKMATE, opponent(self.to_move))
             return state
@@ -134,8 +137,8 @@ class State:
             state.result = Result(ResultType.STALEMATE)
             return state    
         
-        if not update:    
-            return state
+        # if not update:    
+        #     return state
         
         if self.is_check(move):     
             state.check_stack.append(True)
