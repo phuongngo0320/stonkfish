@@ -91,7 +91,9 @@ class State:
         state = deepcopy(self)
         
         # promo move
-        if move.is_promotion():
+        isPromoMove = move.is_promotion()
+        
+        if isPromoMove:
             if not self.promo:
                 print(self.getFEN())
                 raise Exception(f"Invalid promotion: not a promo state")
@@ -147,7 +149,7 @@ class State:
         # if not update:    
         #     return state
         
-        if self.is_check(move): 
+        if self.is_check(move, promo_piece=(Piece(move.promotion, self.to_move) if isPromoMove else None)): 
             state.check_stack.append(True)
             state.check = True
             
@@ -617,8 +619,8 @@ class State:
         if self.to_move != to_cell_piece.color: return True
         return False
     
-    def is_check(self, move: Move) -> bool:
-        typ = self.at(move.fromCell)
+    def is_check(self, move: Move, promo_piece: Piece = None) -> bool:
+        typ = self.at(move.fromCell) if promo_piece is None else promo_piece
         next_moves = self.possible_piece_moves(typ, move.toCell)
         for next_move in next_moves:
             # print(next_move)
