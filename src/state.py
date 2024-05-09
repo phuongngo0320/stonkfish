@@ -37,6 +37,7 @@ class State:
         self.move_stack = [] 
         self.check_stack = []
         self.check = False # check if current state is a check
+        self.promo = False # check if a player should promote a pawn
         
         self.temp_castling_revoked = [False, False, False, False]
         
@@ -91,15 +92,17 @@ class State:
         
         # promo move
         if move.is_promotion():
+            if not self.promo:
+                raise Exception(f"Invalid promotion: not a promo state")
             if fromCell != toCell:
                 raise Exception(f"Invalid promotion: {move}")
             state.set_piece(fromCell, Piece(move.promotion, self.to_move))
-        
-        # not promo
-        else:
+            state.promo = False
             if update:
                 state.to_move = opponent(self.to_move)
-            
+        
+        # not promo
+        else:            
             piece = self.at(fromCell)
             state.set_piece(fromCell, State.EMPTY_CELL)
             state.set_piece(toCell, piece)
@@ -130,6 +133,12 @@ class State:
                 state.set_piece(toCell.toRight(), rook)
         
         state.move_stack.append(move)
+        
+        if self.is_pawn_promo_move(move):
+            state.promo = True # let player choose which one to promo
+        else:
+            if update:
+                state.to_move = opponent(self.to_move)
         
         if not update:    
             return state
@@ -528,6 +537,17 @@ class State:
                     if self.at(move.toCell) != State.EMPTY_CELL: return False
         return True
 
+    def is_pawn_promo_move(self, move: Move):
+        
+        if self.at(move.fromCell).type != PieceType.PAWN:
+            return False
+        
+        toCell = move.toCell
+        
+        if self.to_move == PieceColor.WHITE:
+            return toCell.row == 0
+        
+        return toCell.row == 7
     
     def is_half_move(self, move: Move):
         return False
