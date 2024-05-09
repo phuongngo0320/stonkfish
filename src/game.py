@@ -1,3 +1,6 @@
+from src.piece import PieceColor
+
+
 class Game:
     """A game is similar to a problem, but it has a utility for each
     state and a terminal test instead of a path cost and a goal
@@ -38,15 +41,13 @@ class Game:
         """Play an n-person, move-alternating game."""
         state = self.initial
         
-        turn = 1
         while True:
             for player in players:
                 move = player(self, state)
-                print(f"Player {turn} move: {move}")
+                print(f"Player {1 if state.to_move == PieceColor.WHITE else 2} move: {move}")
                 state = self.result(state, move)
                 if self.terminal_test(state):
                     self.display(state)
+                    print("FEN: " + state.getFEN())
                     print(f"Result: {state.result}")
                     return self.utility(state, self.to_move(self.initial))
-                
-                turn = 3 - turn

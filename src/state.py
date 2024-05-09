@@ -93,6 +93,7 @@ class State:
         # promo move
         if move.is_promotion():
             if not self.promo:
+                print(self.getFEN())
                 raise Exception(f"Invalid promotion: not a promo state")
             if fromCell != toCell:
                 raise Exception(f"Invalid promotion: {move}")
