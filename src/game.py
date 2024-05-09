@@ -37,10 +37,16 @@ class Game:
     def play_game(self, *players):
         """Play an n-person, move-alternating game."""
         state = self.initial
+        
+        turn = 1
         while True:
             for player in players:
                 move = player(self, state)
+                print(f"Player {turn} move: {move}")
                 state = self.result(state, move)
                 if self.terminal_test(state):
                     self.display(state)
+                    print(f"Result: {state.result}")
                     return self.utility(state, self.to_move(self.initial))
+                
+                turn = 3 - turn
