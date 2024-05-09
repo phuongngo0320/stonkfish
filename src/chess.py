@@ -8,6 +8,9 @@ from src.game import Game
 class Chess(Game):
     MAXPL = PieceColor.WHITE
     MINPL = PieceColor.BLACK
+    
+    def __init__(self, fen = State.START_FEN) -> None:
+        self.initial = State(fen)
 
     def actions(self, state: State):
         return state.possible_moves()
