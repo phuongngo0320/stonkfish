@@ -42,6 +42,13 @@ def parseCell(fen: str):
 
 def parseMove(fen: str):
     
+    if len(fen) > 4:
+        return Move(
+            parseCell(fen[:2]),
+            parseCell(fen[2:]),
+            parsePiece(fen[4]).type
+        )
+    
     return Move(
         parseCell(fen[:2]),
         parseCell(fen[2:])
