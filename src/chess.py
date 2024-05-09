@@ -22,7 +22,7 @@ class Chess(Game):
         return evaluate_goal(state, player)
     
     def terminal_test(self, state: State):
-        return state.result.type != ResultType.NONE
+        return (True if state.result else False)
     
     def to_move(self, state: State):
         return state.to_move
