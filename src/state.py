@@ -147,6 +147,7 @@ class State:
         #     return state
         
         if self.is_check(move): 
+            print("is_check in move")
             state.check_stack.append(True)
             state.check = True
             
@@ -335,9 +336,6 @@ class State:
     def danger_zone_move(self, piece:Piece, curr_cell:Cell):
         moves = []
         none = State.EMPTY_CELL
-        # print(moves)
-        # if piece.color != self.to_move: raise Exception('Not your turn!!!')
-        # jump = False
 
         if self.result is not None: return moves
         # WHITE PAWN
@@ -572,36 +570,18 @@ class State:
         if to_move_check:
             if piece.type == PieceType.KING:
                 for check_move in moves:
-                    # if self.at(check_move.fromCell) == State.EMPTY_CELL: print(check_move)
                     enemy_moves = self.all_danger_zone_move(opponent(self.to_move))
-                    # check_state = self.move(check_move,False)
-                    # enemy_moves = check_state.possible_moves_color(opponent(self.to_move))
                     for enemy_move in enemy_moves:
                         if check_move.toCell == enemy_move.toCell:
-                            # print('compare: ')
-                            # print(enemy_move)
-                            # print(check_move)
-                        # if check_state.is_capture_king(enemy_move):
-                            # moves.remove(check_move)
                             remove_move.append(check_move)
                             break
             else:
-                # print('check board:')
                 for check_move in moves:
                     check_state = self.move(check_move, False)
                     check_state.to_move = opponent(self.to_move)
-                    # print(check_move)
-                    # print(check_state)
                     enemy_moves = check_state.possible_moves_color(opponent(self.to_move),False)
                     for enemy_move in enemy_moves:
-                        # if str(enemy_move)[:2] == 'e6':
-                        #     print(enemy_move)
-                        # if str(enemy_move) == 'e6e1':
-                        #     print(check_state.is_capture_king(enemy_move))
                         if check_state.is_capture_king(enemy_move):
-                            # print('compare: ')
-                            # print(enemy_move)
-                            # print(check_move)
                             remove_move.append(check_move)
                             break
                 
@@ -610,49 +590,6 @@ class State:
 
         return moves
 
-        # return self.remove_danger_move(piece, moves, to_move_check)
-    
-    # def remove_danger_move(self,piece:Piece, moves, to_move_check ):
-    #     remove_move = []
-    #     # King must not kill itseft
-    #     # print(moves)
-    #     if to_move_check:
-    #         if piece.type == PieceType.KING:
-    #             for check_move in moves:
-    #                 # if self.at(check_move.fromCell) == State.EMPTY_CELL: print(check_move)
-    #                 enemy_moves = self.all_danger_zone_move(opponent(self.to_move))
-    #                 # check_state = self.move(check_move,False)
-    #                 # enemy_moves = check_state.possible_moves_color(opponent(self.to_move))
-    #                 for enemy_move in enemy_moves:
-    #                     if check_move.toCell == enemy_move.toCell:
-    #                         # print('compare: ')
-    #                         # print(enemy_move)
-    #                         # print(check_move)
-    #                     # if check_state.is_capture_king(enemy_move):
-    #                         # moves.remove(check_move)
-    #                         remove_move.append(check_move)
-    #                         break
-    #         else:
-    #             for check_move in moves:
-    #                 check_state = self.move(check_move, False)
-    #                 check_state.to_move = opponent(self.to_move)
-    #                 enemy_moves = check_state.possible_moves_color(opponent(self.to_move),False)
-    #                 for enemy_move in enemy_moves:
-    #                     # if str(enemy_move)[:2] == 'e6':
-    #                     #     print(enemy_move)
-    #                     # if str(enemy_move) == 'e6e1':
-    #                     #     print(check_state.is_capture_king(enemy_move))
-    #                     if check_state.is_capture_king(enemy_move):
-    #                         # print('compare: ')
-    #                         # print(enemy_move)
-    #                         # print(check_move)
-    #                         remove_move.append(check_move)
-    #                         break
-                
-    #     for i in remove_move:
-    #         moves.remove(i)
-    #     return moves
-    
 
     
     # -----------------------------------------------
@@ -679,10 +616,9 @@ class State:
     def is_check(self, move: Move) -> bool:
         typ = self.at(move.fromCell)
         next_moves = self.possible_piece_moves(typ, move.toCell)
-        # print(next_moves)
         for next_move in next_moves:
-            print(next_move)
-            print(self.is_capture_king(next_move))
+            # print(next_move)
+            # print(self.is_capture_king(next_move))
             if self.is_capture_king(next_move): return True
         return False
      
@@ -776,8 +712,10 @@ class State:
     # case: game over
     def is_checkmate(self):
         # enemy_color = opponent(self.to_move)
+        print('def is check mate')
         if self.is_checking():
             own_moves = self.possible_moves_color(self.to_move)
+            
             # print(own_moves)
             # for move in own_moves:
             #     check_state = self.move(move,False)
