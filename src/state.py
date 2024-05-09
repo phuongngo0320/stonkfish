@@ -430,6 +430,21 @@ class State:
                             moves.append(Move(curr_cell,next_cell))
                             break
                     moves.append(Move(curr_cell,next_cell))
+        elif piece.type == PieceType.KING:
+            directions = ['toUp', 'toDown', 'toLeft', 'toRight',
+                        'toUpRight', 'toUpLeft', 'toDownRight', 'toDownLeft']
+            for direct in directions:
+                next_cell = self.to_direction(curr_cell, direct, 1)
+                if self.out_of_board(next_cell) is True: continue
+                if self.at(next_cell) != none:
+                    if self.at(next_cell).color != piece.color:
+                        moves.append(Move(curr_cell,next_cell))
+                        moves.append(Move(curr_cell,self.to_direction(next_cell, direct, 1)))
+
+                    else:
+                        moves.append(Move(curr_cell,next_cell))
+
+                moves.append(Move(curr_cell,next_cell))
 
         return moves
 
