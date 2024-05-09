@@ -362,7 +362,14 @@ class State:
             for next_cell in next_cell_capture:
                 if self.out_of_board(next_cell) is True: continue
                 if self.at(next_cell) != none:
-                    moves.append(Move(curr_cell,next_cell))
+                    if self.at(next_cell).color != piece.color:
+                        moves.append(Move(curr_cell,next_cell))
+                        if next_cell == curr_cell.toUpLeft(1): moves.append(Move(curr_cell,next_cell.toUpLeft(1)))
+                        else: moves.append(Move(curr_cell,next_cell.toUpRight(1)))
+                    else:
+                        moves.append(Move(curr_cell,next_cell))
+
+                moves.append(Move(curr_cell,next_cell))
 
         # BLACK PAWN
         elif piece == Piece(PieceType.PAWN, PieceColor.BLACK):
@@ -370,7 +377,15 @@ class State:
             for next_cell in next_cell_capture:
                 if self.out_of_board(next_cell) is True: continue
                 if self.at(next_cell) != none:
-                    moves.append(Move(curr_cell,next_cell))
+                    # moves.append(Move(curr_cell,next_cell))
+                    if self.at(next_cell).color != piece.color:
+                        moves.append(Move(curr_cell,next_cell))
+                        if next_cell == curr_cell.toDownLeft(1): moves.append(Move(curr_cell,next_cell.toDownLeft(1)))
+                        else: moves.append(Move(curr_cell,next_cell.toDownRight(1)))
+                    else:
+                        moves.append(Move(curr_cell,next_cell))
+
+                moves.append(Move(curr_cell,next_cell))
 
         elif piece.type == PieceType.KNIGHT: 
             next_cells = [curr_cell.toUp(2).toRight(1), curr_cell.toUp(2).toLeft(1),
