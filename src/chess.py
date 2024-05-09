@@ -16,7 +16,7 @@ class Chess(Game):
         return state.possible_moves()
     
     def result(self, state: State, move: Move):
-        return state.move(move.fromCell, move.toCell)
+        return state.move(move)
     
     def utility(self, state: State, player: PieceColor):
         return evaluate_goal(state, player)
