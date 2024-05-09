@@ -707,7 +707,10 @@ class State:
         return toCell.row == 7
     
     def is_half_move(self, move: Move):
-        return False
+        
+        if self.is_capture(move) or self.at(move.fromCell).type == PieceType.PAWN:
+            return False
+        return True
     
     # -----------------------------------------------
     # check state
