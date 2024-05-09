@@ -95,7 +95,11 @@ class State:
                 raise Exception(f"Invalid promotion: {move}")
             state.set_piece(fromCell, move.promotion)
         
+        # not promo
         else:
+            if update:
+                state.to_move = opponent(self.to_move)
+            
             piece = self.at(fromCell)
             state.set_piece(fromCell, State.EMPTY_CELL)
             state.set_piece(toCell, piece)
@@ -146,7 +150,7 @@ class State:
         else:
             state.check_stack.append(False)
             state.check = False
-        state.to_move = opponent(self.to_move)
+        # state.to_move = opponent(self.to_move)
         
         # castling right state switch -----------------------------------------------
         
