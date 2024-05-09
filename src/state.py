@@ -147,7 +147,6 @@ class State:
         #     return state
         
         if self.is_check(move): 
-            print("is_check in move")
             state.check_stack.append(True)
             state.check = True
             
@@ -424,8 +423,11 @@ class State:
         none = State.EMPTY_CELL
         # print(moves)
         # if piece.color != self.to_move: raise Exception('Not your turn!!!')
-
         if self.result is not None: return moves
+        if self.promo == True and piece.type != PieceType.PAWN: return moves
+        elif self.promo == True and piece.type != PieceType.PAWN:
+            if curr_cell.row != 7 or curr_cell != 0: return moves 
+
         # WHITE PAWN
         if piece == Piece(PieceType.PAWN, PieceColor.WHITE):
             if curr_cell.row == 0:
@@ -712,7 +714,6 @@ class State:
     # case: game over
     def is_checkmate(self):
         # enemy_color = opponent(self.to_move)
-        print('def is check mate')
         if self.is_checking():
             own_moves = self.possible_moves_color(self.to_move)
             

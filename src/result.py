@@ -33,3 +33,6 @@ class Result:
         
     def __eq__(self, value: object) -> bool:
         return self.type == value.type and self.winner == value.winner
+    
+    def __str__(self) -> str:
+        return RESULT_TYPE_NAMES[self.type.value]
