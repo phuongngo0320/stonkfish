@@ -295,7 +295,7 @@ class State:
     #         if str == ''
         
     def possible_moves(self) -> list[Move]:
-        return self.possible_moves_color(PieceColor.BLACK) + self.possible_moves_color(PieceColor.WHITE) 
+        return self.possible_moves_color(self.to_move) 
 
     def possible_moves_color(self, color:PieceColor, to_move_check = True):
         moves =[]
@@ -425,7 +425,7 @@ class State:
         # print(moves)
         # if piece.color != self.to_move: raise Exception('Not your turn!!!')
         if self.result is not None: return moves
-
+        # print(str(curr_cell) + ' ' + str(self.promo))
         if self.promo == True and piece.type != PieceType.PAWN and piece.color == self.to_move: return moves
         elif self.promo == True and piece.type == PieceType.PAWN and piece.color == self.to_move:
             if curr_cell.row != 7 and curr_cell.row != 0: return moves 
@@ -618,11 +618,11 @@ class State:
         return False
     
     def is_check(self, move: Move) -> bool:
+        print(move)
         typ = self.at(move.fromCell)
+        print(typ)
         next_moves = self.possible_piece_moves(typ, move.toCell)
         for next_move in next_moves:
-            # print(next_move)
-            # print(self.is_capture_king(next_move))
             if self.is_capture_king(next_move): return True
         return False
      
