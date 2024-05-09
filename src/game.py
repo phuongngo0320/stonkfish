@@ -48,6 +48,5 @@ class Game:
                 state = self.result(state, move)
                 if self.terminal_test(state):
                     self.display(state)
-                    print("FEN: " + state.getFEN())
                     print(f"Result: {state.result}")
                     return self.utility(state, self.to_move(self.initial))

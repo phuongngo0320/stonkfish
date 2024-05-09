@@ -859,7 +859,7 @@ class State:
             for col in range(State.BOARD_SIZE)
         ])]) + "\n"
         
-        return board
+        return board + "\n\nFEN: " + self.getFEN() + "\n"
     
     
     
