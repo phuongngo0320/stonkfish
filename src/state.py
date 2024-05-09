@@ -149,16 +149,24 @@ class State:
         if self.is_check(move):     
             state.check_stack.append(True)
             state.check = True
+            
+            if state.is_checkmate():
+                state.result = Result(ResultType.CHECKMATE, opponent(self.to_move))
+                return state
         else:
             state.check_stack.append(False)
             state.check = False
             
-        if self.is_checkmate():
-            state.result = Result(ResultType.CHECKMATE, opponent(self.to_move))
-            return state
-        if self.is_stalemate():
-            state.result = Result(ResultType.STALEMATE)
-            return state 
+            if state.is_stalemate():
+                state.result = Result(ResultType.STALEMATE)
+                return state 
+            
+        # if self.is_checkmate():
+        #     state.result = Result(ResultType.CHECKMATE, opponent(self.to_move))
+        #     return state
+        # if self.is_stalemate():
+        #     state.result = Result(ResultType.STALEMATE)
+        #     return state 
         # state.to_move = opponent(self.to_move)
         
         # castling right state switch -----------------------------------------------
