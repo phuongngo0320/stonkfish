@@ -93,7 +93,7 @@ class State:
         if move.is_promotion():
             if fromCell != toCell:
                 raise Exception(f"Invalid promotion: {move}")
-            state.set_piece(fromCell, move.promotion)
+            state.set_piece(fromCell, Piece(move.promotion, self.to_move))
         
         # not promo
         else:
