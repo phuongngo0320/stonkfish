@@ -12,7 +12,13 @@ class Move:
         return self.promotion != PieceType.NONE
         
     def getFEN(self) -> str:
-        return self.fromCell.getFEN() + self.toCell.getFEN() + Piece(self.promotion).getFEN() if self.promotion is not None else self.fromCell.getFEN() + self.toCell.getFEN()
+        fen_from = self.fromCell.getFEN()
+        fen_to = self.toCell.getFEN()
+        
+        if self.promotion != PieceType.NONE:
+            return fen_from + fen_to + Piece(self.promotion).getFEN()
+        
+        return fen_from + fen_to
     
     def __eq__(self, value: object) -> bool:
         return (
