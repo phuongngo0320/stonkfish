@@ -92,7 +92,8 @@ class State:
         
         # promo move
         isPromoMove = move.is_promotion()
-        
+        promoSimulatedState = None
+
         if isPromoMove:
             if not self.promo:
                 print(self.getFEN())
@@ -100,6 +101,7 @@ class State:
             if fromCell != toCell:
                 raise Exception(f"Invalid promotion: {move}")
             state.set_piece(fromCell, Piece(move.promotion, self.to_move))
+            promoSimulatedState = deepcopy(state)
             state.promo = False
             if update:
                 state.to_move = opponent(self.to_move)
@@ -137,7 +139,13 @@ class State:
         
         state.move_stack.append(move)
         
-        if self.is_pawn_promo_move(move):
+        
+        toBePromoted = (
+            promoSimulatedState.is_pawn_promo_move(move) if isPromoMove
+            else self.is_pawn_promo_move(move)
+        )
+        
+        if toBePromoted:
             state.promo = True # let player choose which one to promo
         else:
             if update:
@@ -149,7 +157,11 @@ class State:
         # if not update:    
         #     return state
         
-        if self.is_check(move, promo_piece=(Piece(move.promotion, self.to_move) if isPromoMove else None)): 
+        isCheck = (
+            promoSimulatedState.is_check(move) if isPromoMove 
+            else self.is_check(move)
+        )
+        if isCheck: 
             state.check_stack.append(True)
             state.check = True
             
@@ -619,8 +631,8 @@ class State:
         if self.to_move != to_cell_piece.color: return True
         return False
     
-    def is_check(self, move: Move, promo_piece: Piece = None) -> bool:
-        typ = self.at(move.fromCell) if promo_piece is None else promo_piece
+    def is_check(self, move: Move) -> bool:
+        typ = self.at(move.fromCell)
         next_moves = self.possible_piece_moves(typ, move.toCell)
         for next_move in next_moves:
             if self.is_capture_king(next_move): return True
