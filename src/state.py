@@ -296,13 +296,13 @@ class State:
     def possible_moves(self) -> list[Move]:
         return self.possible_moves_color(PieceColor.BLACK) + self.possible_moves_color(PieceColor.WHITE) 
 
-    def possible_moves_color(self, color:PieceColor):
+    def possible_moves_color(self, color:PieceColor, to_move_check = True):
         moves =[]
         for piece, curr_cell in self.piecemap.items():
             curr_piece = parsePiece(piece)
             if curr_piece.color == color:
                 for cell in curr_cell:
-                    moves += self.possible_piece_moves(curr_piece,cell)
+                    moves += self.possible_piece_moves(curr_piece,cell, to_move_check)
         return moves
     
     def to_direction (self, curr_cell:Cell, direc, distance) -> Cell:
@@ -337,6 +337,7 @@ class State:
         none = State.EMPTY_CELL
         # print(moves)
         # if piece.color != self.to_move: raise Exception('Not your turn!!!')
+        jump = False
 
         if self.result is not None: return moves
         # WHITE PAWN
@@ -371,7 +372,16 @@ class State:
             for direct in directions:
                 for i in range(1,8):
                     next_cell = self.to_direction(curr_cell, direct, i)
-                    if self.out_of_board(next_cell) is True: break                    
+                    if self.out_of_board(next_cell) is True: break 
+                    if self.at(next_cell) != none:
+                        if self.at(next_cell).color != piece.color:
+                            moves.append(Move(curr_cell,next_cell))
+                            moves.append(Move(curr_cell,self.to_direction(next_cell, direct, 1)))
+                            break
+                        else:
+                            moves.append(Move(curr_cell,next_cell))
+                            break
+
                     moves.append(Move(curr_cell,next_cell))
 
         elif piece.type == PieceType.ROOK:
@@ -380,6 +390,14 @@ class State:
                 for i in range(1,8):
                     next_cell = self.to_direction(curr_cell, direct, i) 
                     if self.out_of_board(next_cell) is True: break
+                    if self.at(next_cell) != none:
+                        if self.at(next_cell).color != piece.color:
+                            moves.append(Move(curr_cell,next_cell))
+                            moves.append(Move(curr_cell,self.to_direction(next_cell, direct, 1)))
+                            break
+                        else:
+                            moves.append(Move(curr_cell,next_cell))
+                            break
                     moves.append(Move(curr_cell,next_cell))
                     
         elif piece.type == PieceType.QUEEN:
@@ -389,17 +407,25 @@ class State:
                 for i in range(1,8):
                     next_cell = self.to_direction(curr_cell, direct, i)
                     if self.out_of_board(next_cell) is True: break
+                    if self.at(next_cell) != none:
+                        if self.at(next_cell).color != piece.color:
+                            moves.append(Move(curr_cell,next_cell))
+                            moves.append(Move(curr_cell,self.to_direction(next_cell, direct, 1)))
+                            break
+                        else:
+                            moves.append(Move(curr_cell,next_cell))
+                            break
                     moves.append(Move(curr_cell,next_cell))
 
         return moves
 
     
-    def possible_piece_moves(self, piece:Piece, curr_cell:Cell) -> list[Move]:
+    def possible_piece_moves(self, piece:Piece, curr_cell:Cell, to_move_check = True) -> list[Move]:
         piece_color = piece.color
         moves = []
         none = State.EMPTY_CELL
         # print(moves)
-        if piece.color != self.to_move: raise Exception('Not your turn!!!')
+        # if piece.color != self.to_move: raise Exception('Not your turn!!!')
 
         if self.result is not None: return moves
         # WHITE PAWN
@@ -459,7 +485,9 @@ class State:
                     if self.out_of_board(next_cell) is True: break
                     if self.at(next_cell) != none:
                         if self.at(next_cell).color == piece_color: break
-                    
+                        else:
+                            moves.append(Move(curr_cell,next_cell))
+                            break
                     moves.append(Move(curr_cell,next_cell))
 
         elif piece.type == PieceType.ROOK:
@@ -470,7 +498,9 @@ class State:
                     if self.out_of_board(next_cell) is True: break
                     if self.at(next_cell) != none:
                         if self.at(next_cell).color == piece_color: break
-                    
+                        else:
+                            moves.append(Move(curr_cell,next_cell))
+                            break
                     moves.append(Move(curr_cell,next_cell))
                     
         elif piece.type == PieceType.QUEEN:
@@ -482,7 +512,9 @@ class State:
                     if self.out_of_board(next_cell) is True: break
                     if self.at(next_cell) != none:
                         if self.at(next_cell).color == piece_color: break
-                    
+                        else:
+                            moves.append(Move(curr_cell,next_cell))
+                            break
                     moves.append(Move(curr_cell,next_cell))
 
         elif piece.type == PieceType.KING:
@@ -518,18 +550,46 @@ class State:
                     if Move(curr_cell,curr_cell.toLeft()) in moves:
                         if self.at(next_cell) == none:
                             moves.append(Move(curr_cell,curr_cell.toLeft(2)))
-        # print(moves)
+
         remove_move = []
-        print(len(moves))
-        for i, check_move in enumerate(moves):
-            # if self.at(check_move.fromCell) == State.EMPTY_CELL: print(check_move)
-            enemy_moves = self.all_danger_zone_move(opponent(self.to_move))
-            for enemy_move in enemy_moves:
-                if check_move.toCell == enemy_move.toCell:
-                # if check_state.is_capture_king(enemy_move):
-                    # moves.remove(check_move)
-                    remove_move.append(check_move)
-                    break
+        # King must not kill itseft
+        # print(moves)
+        if to_move_check:
+            if piece.type == PieceType.KING:
+                for check_move in moves:
+                    # if self.at(check_move.fromCell) == State.EMPTY_CELL: print(check_move)
+                    enemy_moves = self.all_danger_zone_move(opponent(self.to_move))
+                    # check_state = self.move(check_move,False)
+                    # enemy_moves = check_state.possible_moves_color(opponent(self.to_move))
+                    for enemy_move in enemy_moves:
+                        if check_move.toCell == enemy_move.toCell:
+                            print('compare: ')
+                            print(enemy_move)
+                            print(check_move)
+                        # if check_state.is_capture_king(enemy_move):
+                            # moves.remove(check_move)
+                            remove_move.append(check_move)
+                            break
+            else:
+                # print('check board:')
+                for check_move in moves:
+                    check_state = self.move(check_move, False)
+                    check_state.to_move = opponent(self.to_move)
+                    # print(check_move)
+                    # print(check_state)
+                    enemy_moves = check_state.possible_moves_color(opponent(self.to_move),False)
+                    for enemy_move in enemy_moves:
+                        # if str(enemy_move)[:2] == 'e6':
+                        #     print(enemy_move)
+                        # if str(enemy_move) == 'e6e1':
+                        #     print(check_state.is_capture_king(enemy_move))
+                        if check_state.is_capture_king(enemy_move):
+                            # print('compare: ')
+                            # print(enemy_move)
+                            # print(check_move)
+                            remove_move.append(check_move)
+                            break
+                
         for i in remove_move:
             moves.remove(i)
         return moves
@@ -656,11 +716,11 @@ class State:
         if self.is_checking:
             own_moves = self.possible_moves_color(self.to_move)
             for move in own_moves:
-                check_state = self.move(move)
+                check_state = self.move(move,False)
                 enemy_moves = check_state.possible_moves_color(enemy_color)
                 for enemy_move in enemy_moves:
                     if check_state.is_capture_king(enemy_move): 
-                        self.result = Result(ResultType.CHECKMATE, opponent(self.to_move))
+                        # self.result = Result(ResultType.CHECKMATE, opponent(self.to_move))
                         return True
         return False
 
@@ -670,11 +730,11 @@ class State:
         if not self.is_checking:
             own_moves = self.possible_moves_color(self.to_move)
             for move in own_moves:
-                check_state = self.move(move)
+                check_state = self.move(move,False)
                 enemy_moves = check_state.possible_moves_color(enemy_color)
                 for enemy_move in enemy_moves:
                     if check_state.is_capture_king(enemy_move): 
-                        self.result = Result(ResultType.STALEMATE)
+                        # self.result = Result(ResultType.STALEMATE)
                         return True
         return False
     
