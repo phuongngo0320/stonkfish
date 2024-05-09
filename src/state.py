@@ -300,6 +300,8 @@ class State:
             state.halfmove_clock += 1
             if state.halfmove_clock == 75:
                 state.result = Result(ResultType.SEVENTYFIVE_MOVES)
+        else:
+            state.halfmove_clock = 0        
         if self.to_move == PieceColor.BLACK:
             state.fullmove_number += 1
     
