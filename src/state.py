@@ -1,6 +1,6 @@
 from copy import deepcopy
 from src.cell import Cell
-from src.fen import parseBoard, parseCell, parsePiece
+from src.fen import parseBoard, parseCell, parseMove, parsePiece
 from src.move import Move
 from src.piece import Piece, PieceColor, PieceType, opponent
 from src.result import Result, ResultType
@@ -146,7 +146,7 @@ class State:
         # if not update:    
         #     return state
         
-        if self.is_check(move):     
+        if self.is_check(move): 
             state.check_stack.append(True)
             state.check = True
             
@@ -337,7 +337,7 @@ class State:
         none = State.EMPTY_CELL
         # print(moves)
         # if piece.color != self.to_move: raise Exception('Not your turn!!!')
-        jump = False
+        # jump = False
 
         if self.result is not None: return moves
         # WHITE PAWN
@@ -430,9 +430,16 @@ class State:
         if self.result is not None: return moves
         # WHITE PAWN
         if piece == Piece(PieceType.PAWN, PieceColor.WHITE):
+            if curr_cell.row == 0:
+                curr_cell_str = str(curr_cell)
+                moves.append(parseMove(curr_cell_str+curr_cell_str+'Q'))
+                moves.append(parseMove(curr_cell_str+curr_cell_str+'N'))
+                moves.append(parseMove(curr_cell_str+curr_cell_str+'B'))
+                moves.append(parseMove(curr_cell_str+curr_cell_str+'R'))
             if self.out_of_board(curr_cell.toUp()): return moves
             if self.at(curr_cell.toUp()) == none:
                 moves.append(Move(curr_cell,curr_cell.toUp()))
+            
             if curr_cell.row == 6:
                 if self.at(curr_cell.toUp(2)) == none:
                     moves.append(Move(curr_cell,curr_cell.toUp(2)))
@@ -449,12 +456,18 @@ class State:
                         moves.append(Move(curr_cell,next_cell))
         # BLACK PAWN
         elif piece == Piece(PieceType.PAWN, PieceColor.BLACK):
+            if curr_cell.row == 7:
+                curr_cell_str = str(curr_cell)
+                moves.append(parseMove(curr_cell_str+curr_cell_str+'q'))
+                moves.append(parseMove(curr_cell_str+curr_cell_str+'n'))
+                moves.append(parseMove(curr_cell_str+curr_cell_str+'b'))
+                moves.append(parseMove(curr_cell_str+curr_cell_str+'r'))    
             if self.out_of_board(curr_cell.toDown()): return moves
             if self.at(curr_cell.toDown()) == none:
                 moves.append(Move(curr_cell,curr_cell.toDown()))
             if curr_cell.row == 1:
                 if self.at(curr_cell.toDown(2)) == none:
-                    moves.append(Move(curr_cell,curr_cell.toUp(2)))
+                    moves.append(Move(curr_cell,curr_cell.toDown(2)))
             next_cell_capture = [curr_cell.toDownLeft(1), curr_cell.toDownRight(1)]
             for next_cell in next_cell_capture:
                 if self.out_of_board(next_cell) is True: continue
@@ -594,7 +607,53 @@ class State:
                 
         for i in remove_move:
             moves.remove(i)
+
         return moves
+
+        # return self.remove_danger_move(piece, moves, to_move_check)
+    
+    # def remove_danger_move(self,piece:Piece, moves, to_move_check ):
+    #     remove_move = []
+    #     # King must not kill itseft
+    #     # print(moves)
+    #     if to_move_check:
+    #         if piece.type == PieceType.KING:
+    #             for check_move in moves:
+    #                 # if self.at(check_move.fromCell) == State.EMPTY_CELL: print(check_move)
+    #                 enemy_moves = self.all_danger_zone_move(opponent(self.to_move))
+    #                 # check_state = self.move(check_move,False)
+    #                 # enemy_moves = check_state.possible_moves_color(opponent(self.to_move))
+    #                 for enemy_move in enemy_moves:
+    #                     if check_move.toCell == enemy_move.toCell:
+    #                         # print('compare: ')
+    #                         # print(enemy_move)
+    #                         # print(check_move)
+    #                     # if check_state.is_capture_king(enemy_move):
+    #                         # moves.remove(check_move)
+    #                         remove_move.append(check_move)
+    #                         break
+    #         else:
+    #             for check_move in moves:
+    #                 check_state = self.move(check_move, False)
+    #                 check_state.to_move = opponent(self.to_move)
+    #                 enemy_moves = check_state.possible_moves_color(opponent(self.to_move),False)
+    #                 for enemy_move in enemy_moves:
+    #                     # if str(enemy_move)[:2] == 'e6':
+    #                     #     print(enemy_move)
+    #                     # if str(enemy_move) == 'e6e1':
+    #                     #     print(check_state.is_capture_king(enemy_move))
+    #                     if check_state.is_capture_king(enemy_move):
+    #                         # print('compare: ')
+    #                         # print(enemy_move)
+    #                         # print(check_move)
+    #                         remove_move.append(check_move)
+    #                         break
+                
+    #     for i in remove_move:
+    #         moves.remove(i)
+    #     return moves
+    
+
     
     # -----------------------------------------------
     # check cell
@@ -610,9 +669,9 @@ class State:
 
     def is_capture(self, move: Move):
         # if self.is_empty_cell(move.toCell) is True: return False
-        # if self.at(move.toCell).color == self.to_move: raise Exception("IMPOSTER!!")
+        if self.out_of_board(move.toCell): raise Exception(str(self.at(move.fromCell).color)+ " " + str(move))
         if self.at(move.toCell) == State.EMPTY_CELL: return False
-
+        
         to_cell_piece = self.at(move.toCell)
         if self.to_move != to_cell_piece.color: return True
         return False
@@ -620,8 +679,11 @@ class State:
     def is_check(self, move: Move) -> bool:
         typ = self.at(move.fromCell)
         next_moves = self.possible_piece_moves(typ, move.toCell)
+        # print(next_moves)
         for next_move in next_moves:
-            if self.is_capture_king(next_move) is True: return True
+            print(next_move)
+            print(self.is_capture_king(next_move))
+            if self.is_capture_king(next_move): return True
         return False
      
     def is_castling(self, move: Move):
@@ -713,31 +775,33 @@ class State:
     
     # case: game over
     def is_checkmate(self):
-
-        enemy_color = opponent(self.to_move)
-        if self.is_checking:
+        # enemy_color = opponent(self.to_move)
+        if self.is_checking():
             own_moves = self.possible_moves_color(self.to_move)
-            for move in own_moves:
-                check_state = self.move(move,False)
-                enemy_moves = check_state.possible_moves_color(enemy_color)
-                for enemy_move in enemy_moves:
-                    if check_state.is_capture_king(enemy_move): 
-                        # self.result = Result(ResultType.CHECKMATE, opponent(self.to_move))
-                        return True
+            # print(own_moves)
+            # for move in own_moves:
+            #     check_state = self.move(move,False)
+            #     enemy_moves = check_state.possible_moves_color(enemy_color)
+            #     for enemy_move in enemy_moves:
+            #         if check_state.is_capture_king(enemy_move): 
+            #             # self.result = Result(ResultType.CHECKMATE, opponent(self.to_move))
+            #             return True
+            if len(own_moves) == 0 : return True
         return False
-
+    
     
     def is_stalemate(self):
-        enemy_color = opponent(self.to_move)
-        if not self.is_checking:
+        # enemy_color = opponent(self.to_move)
+        if not self.is_checking():
             own_moves = self.possible_moves_color(self.to_move)
-            for move in own_moves:
-                check_state = self.move(move,False)
-                enemy_moves = check_state.possible_moves_color(enemy_color)
-                for enemy_move in enemy_moves:
-                    if check_state.is_capture_king(enemy_move): 
-                        # self.result = Result(ResultType.STALEMATE)
-                        return True
+            # for move in own_moves:
+            #     check_state = self.move(move,False)
+            #     enemy_moves = check_state.possible_moves_color(enemy_color)
+            #     for enemy_move in enemy_moves:
+            #         if check_state.is_capture_king(enemy_move): 
+            #             # self.result = Result(ResultType.STALEMATE)
+                        
+            if len(own_moves) ==0: return True
         return False
     
     def is_insufficient_material(self):

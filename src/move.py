@@ -1,5 +1,5 @@
 from src.cell import Cell
-from src.piece import PieceType
+from src.piece import Piece, PieceType
 
 class Move:
     
@@ -12,7 +12,7 @@ class Move:
         return self.promotion != PieceType.NONE
         
     def getFEN(self) -> str:
-        return self.fromCell.getFEN() + self.toCell.getFEN()
+        return self.fromCell.getFEN() + self.toCell.getFEN() + Piece(self.promotion).getFEN() if self.promotion is not None else self.fromCell.getFEN() + self.toCell.getFEN()
     
     def __eq__(self, value: object) -> bool:
         return (

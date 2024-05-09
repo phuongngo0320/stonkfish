@@ -38,9 +38,6 @@ class Cell:
         fen2 = chr(ord("a") + self.col)
         return fen2 + fen1
     
-    def __repr__(self) -> str:
-        pass
-    
     def __eq__(self, value: object) -> bool:
         return self.row == value.row and self.col == value.col
     
